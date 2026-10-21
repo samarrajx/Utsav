@@ -19,6 +19,7 @@ import { renderVendorsTab } from "./views/vendors-tab.js";
 import { renderTimelineTab } from "./views/timeline-tab.js";
 import { renderGuestsTab } from "./views/guests-tab.js";
 import { renderIdeasTab } from "./views/ideas-tab.js";
+import { openVendorOutreachModal } from "./views/vendor-outreach-modal.js";
 
 /**
  * Announce messages to screen readers via ARIA live region
@@ -143,10 +144,12 @@ function renderCurrentRoute() {
       onNavigateTab: (tabId) => {
         navigate(`#/event/${activeEvent.id}/${tabId}`);
       },
-      onDraftMessage: (_vendor) => {
-        const text = `Hi, I am planning a celebration (${activeEvent.title}) on ${activeEvent.date} in ${activeEvent.city} for ~${activeEvent.guests?.target || 100} guests. Are you available on this date, and could you share your package pricing?`;
-        navigator.clipboard?.writeText(text);
-        alert(`Vendor outreach message copied to clipboard!\n\n"${text}"`);
+      onDraftMessage: (vendor) => {
+        openVendorOutreachModal({
+          vendor,
+          event: activeEvent,
+          announce
+        });
       },
       announce
     };
@@ -205,7 +208,11 @@ function renderCurrentRoute() {
       if (activeEvent) {
         navigate(`#/event/${activeEvent.id}/${tab}`);
       }
-    }
+    },
+    onUpdateEvent: (_updated) => {
+      renderCurrentRoute();
+    },
+    announce
   });
 
   appRoot.replaceChildren(shell);

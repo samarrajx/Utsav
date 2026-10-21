@@ -104,6 +104,9 @@ export class MockElement extends MockNode {
   }
 
   appendChild(child) {
+    if (child && typeof child === "object") {
+      child.parentNode = this;
+    }
     this.childNodes.push(child);
     return child;
   }
@@ -112,8 +115,17 @@ export class MockElement extends MockNode {
     const idx = this.childNodes.indexOf(child);
     if (idx >= 0) {
       this.childNodes.splice(idx, 1);
+      if (child && typeof child === "object") {
+        child.parentNode = null;
+      }
     }
     return child;
+  }
+
+  remove() {
+    if (this.parentNode) {
+      this.parentNode.removeChild(this);
+    }
   }
 
   replaceChildren(...children) {
@@ -213,7 +225,10 @@ export function setupMockDOM() {
   globalThis.MockElement = MockElement;
   globalThis.MockTextNode = MockTextNode;
 
+  const bodyElement = new MockElement("body");
+
   globalThis.document = {
+    body: bodyElement,
     createElement(tag) {
       return new MockElement(tag);
     },

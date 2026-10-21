@@ -11,6 +11,7 @@
 import { el, icon } from "../dom.js";
 import { getEvents, getActiveEvent, setActiveEventId } from "../storage.js";
 import { navigate } from "../router.js";
+import { renderAssistantWidget } from "./assistant.js";
 
 /**
  * Render the main application frame
@@ -30,7 +31,9 @@ export function renderAppShell({
   mainView,
   onOpenSettings,
   onSwitchEvent,
-  onSelectTab
+  onSelectTab,
+  onUpdateEvent,
+  announce
 }) {
   const events = getEvents();
   const currentEvent = activeEvent || getActiveEvent();
@@ -209,35 +212,17 @@ export function renderAppShell({
       ])
     ]),
 
-    el("div", { className: "right-rail-card card assistant-teaser-card" }, [
+    currentEvent ? renderAssistantWidget(currentEvent, {
+      onUpdate: (updated) => {
+        if (onUpdateEvent) onUpdateEvent(updated);
+      },
+      announce
+    }) : el("div", { className: "right-rail-card card assistant-teaser-card" }, [
       el("div", { className: "teaser-header" }, [
         icon("sparkles", "teaser-sparkle"),
         el("h3", { className: "rail-card-title" }, "AI Event Assistant")
       ]),
-      el("p", { className: "teaser-desc" }, "Ask in plain language to adjust budgets, generate vendor messages, or audit risks."),
-      el("div", { className: "teaser-prompt-chips" }, [
-        el("button", {
-          type: "button",
-          className: "prompt-chip",
-          onClick: () => {
-            if (currentEvent) navigate(`#/event/${currentEvent.id}/overview`);
-          }
-        }, "💡 \"Suggest creative entry ideas\""),
-        el("button", {
-          type: "button",
-          className: "prompt-chip",
-          onClick: () => {
-            if (currentEvent) navigate(`#/event/${currentEvent.id}/budget`);
-          }
-        }, "💰 \"Make catering 10% cheaper\""),
-        el("button", {
-          type: "button",
-          className: "prompt-chip",
-          onClick: () => {
-            if (currentEvent) navigate(`#/event/${currentEvent.id}/vendors`);
-          }
-        }, "✍️ \"Draft WhatsApp to photographer\"")
-      ])
+      el("p", { className: "teaser-desc" }, "Select or create an event to chat with your celebration assistant.")
     ])
   ]);
 
