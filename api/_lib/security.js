@@ -229,6 +229,14 @@ export function sendResponse(res, status, data, headers = {}) {
     ...headers
   };
 
+  // Preserve X-Cache header if set via res.setHeader
+  if (res && typeof res.getHeader === "function") {
+    const xCache = res.getHeader("x-cache") || res.getHeader("X-Cache");
+    if (xCache && !defaultHeaders["X-Cache"]) {
+      defaultHeaders["X-Cache"] = xCache;
+    }
+  }
+
   if (res && typeof res.status === "function") {
     for (const [k, v] of Object.entries(defaultHeaders)) {
       res.setHeader(k, v);

@@ -365,12 +365,6 @@ textarea:focus-visible {
   line-height: 1.5;
 }
 
-.teaser-prompt-chips {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
 .prompt-chip {
   padding: 0.5rem 0.625rem;
   border-radius: var(--radius-sm);
@@ -897,7 +891,7 @@ textarea:focus-visible {
 
 /* Print Stylesheet */
 @media print {
-  .app-sidebar, .app-topbar, .app-right-rail, .event-tabs-nav, .hero-actions-row, .btn {
+  .app-sidebar, .app-topbar, .app-right-rail, .event-tabs-nav, .hero-actions-row, .btn, .export-actions-bar {
     display: none !important;
   }
   .app-layout-grid {
@@ -3010,12 +3004,6 @@ textarea:focus-visible {
 .btn-sm {
   padding: 0.35rem 0.75rem;
   font-size: 0.8125rem;
-}
-
-@media print {
-  .export-actions-bar {
-    display: none !important;
-  }
 }
 
 

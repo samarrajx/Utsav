@@ -9,6 +9,7 @@ import { secureApiHandler } from "./_lib/security.js";
 import { intakeInputSchema, intakeOutputSchema } from "./_lib/schemas.js";
 import { callGeminiStructured } from "./_lib/gemini.js";
 import { checkFeasibility } from "../web/js/engine/index.js";
+import { apiResponseCache, generateCacheKey } from "./_lib/cache.js";
 
 export default async function handler(req, res) {
   return secureApiHandler(req, res, {
@@ -21,6 +22,7 @@ export default async function handler(req, res) {
       const hasCoreContext = Boolean(type && city && budget && guests && date);
 
       if (hasCoreContext) {
+        if (res?.setHeader) res.setHeader("X-Cache", "MISS");
         const feasibility = checkFeasibility({
           type,
           budget,
@@ -39,6 +41,16 @@ export default async function handler(req, res) {
           }
         };
       }
+
+      // Check cache for incomplete questions
+      const modelName = process.env.GEMINI_MODEL || "gemini-2.5-flash-lite";
+      const cacheKey = generateCacheKey("intake", { type, city, budget, guests, date, currency, mustHaves, language }, modelName);
+      const cached = apiResponseCache.get(cacheKey);
+      if (cached) {
+        if (res?.setHeader) res.setHeader("X-Cache", "HIT");
+        return cached;
+      }
+      if (res?.setHeader) res.setHeader("X-Cache", "MISS");
 
       // Context is incomplete: Call Gemini to formulate up to 4 personalized questions
       const systemInstruction = `You are the smart intake assistant for Utsav, an AI Celebration and Event Planner.
@@ -72,9 +84,11 @@ Format your response strictly as JSON conforming to:
           language
         },
         prompt: "Identify missing context and ask at most 4 essential questions to unlock planning.",
-        responseSchema: intakeOutputSchema
+        responseSchema: intakeOutputSchema,
+        maxOutputTokens: 512
       });
 
+      apiResponseCache.set(cacheKey, aiResponse);
       return aiResponse;
     }
   });

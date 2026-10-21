@@ -55,7 +55,8 @@ Format your response strictly as JSON conforming to:
           language
         },
         prompt: "Audit this plan and provide actionable risk warnings with suggested fixes.",
-        responseSchema: critiqueOutputSchema
+        responseSchema: critiqueOutputSchema,
+        maxOutputTokens: 1024
       });
 
       return aiResponse;

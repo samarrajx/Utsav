@@ -15,7 +15,7 @@ import { checkFeasibility } from "../engine/feasibility.js";
 import { generateBaselinePlan } from "../engine/baseline.js";
 import { formatCurrency } from "../engine/money.js";
 import { addWeeks, toISODateString } from "../engine/dates.js";
-import { fetchIntake, fetchPlanSection, fetchCritique } from "../api.js";
+import { fetchIntake, fetchPlanSection, fetchCritique, getPlanAbortSignal } from "../api.js";
 import { navigate } from "../router.js";
 
 /**
@@ -506,6 +506,7 @@ export function renderNewEventFlow({ onComplete } = {}) {
 
     // Pre-create baseline plan as a fallback reservoir
     const baseline = generateBaselinePlan(planParams);
+    const planSignal = getPlanAbortSignal();
 
     let coreResult = null;
     let vendorsResult = null;
@@ -513,7 +514,7 @@ export function renderNewEventFlow({ onComplete } = {}) {
     let fallbackUsed = false;
 
     // 1. Core Section
-    const corePromise = fetchPlanSection("core", planParams).then((res) => {
+    const corePromise = fetchPlanSection("core", planParams, { signal: planSignal }).then((res) => {
       if (res.ok && res.data) {
         coreResult = res.data;
         markCardSuccess(progressCards.core, "✓ Core roadmap generated");
@@ -529,7 +530,7 @@ export function renderNewEventFlow({ onComplete } = {}) {
     });
 
     // 2. Vendors Section
-    const vendorsPromise = fetchPlanSection("vendors", planParams).then((res) => {
+    const vendorsPromise = fetchPlanSection("vendors", planParams, { signal: planSignal }).then((res) => {
       if (res.ok && res.data?.vendors) {
         vendorsResult = res.data.vendors;
         markCardSuccess(progressCards.vendors, "✓ Vendor checklist ready");
@@ -541,7 +542,7 @@ export function renderNewEventFlow({ onComplete } = {}) {
     });
 
     // 3. Ideas Section
-    const ideasPromise = fetchPlanSection("ideas", planParams).then((res) => {
+    const ideasPromise = fetchPlanSection("ideas", planParams, { signal: planSignal }).then((res) => {
       if (res.ok && res.data?.ideas) {
         ideasResult = res.data.ideas;
         markCardSuccess(progressCards.ideas, "✓ Custom ideas curated");

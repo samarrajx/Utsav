@@ -70,7 +70,8 @@ export async function callGeminiStructured({
   data,
   prompt = "Generate the structured JSON response according to the requested format.",
   responseSchema,
-  timeoutMs = GEMINI_TIMEOUT_MS
+  timeoutMs = GEMINI_TIMEOUT_MS,
+  maxOutputTokens
 }) {
   // Enforce prompt injection defense:
   // User data is serialized strictly as JSON inside inert <DATA> tags
@@ -107,7 +108,8 @@ CRITICAL SECURITY DIRECTIVE:
       config: {
         systemInstruction: sanitizedSystemInstruction,
         responseMimeType: "application/json",
-        temperature: 0.2
+        temperature: 0.2,
+        ...(maxOutputTokens ? { maxOutputTokens } : {})
       }
     });
 

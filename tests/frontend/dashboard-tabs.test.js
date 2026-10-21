@@ -9,6 +9,7 @@ import { renderVendorsTab } from "../../web/js/views/vendors-tab.js";
 import { renderTimelineTab } from "../../web/js/views/timeline-tab.js";
 import { renderGuestsTab } from "../../web/js/views/guests-tab.js";
 import { renderIdeasTab } from "../../web/js/views/ideas-tab.js";
+import { renderTablist } from "../../web/js/views/tabs.js";
 
 describe("Frontend Dashboard Tabs Integration Suite", () => {
   let cleanupDOM;
@@ -308,6 +309,26 @@ describe("Frontend Dashboard Tabs Integration Suite", () => {
       form.dispatchEvent({ type: "submit", preventDefault: () => {} });
       assert.equal(updated, true);
       assert.equal(testEvent.ideas.length, initialCount + 1);
+    });
+  });
+
+  describe("In-Place Tab Navigation & Accessibility", () => {
+    it("should render accessible tablist with correct ARIA attributes and selection", () => {
+      let selected = null;
+      const nav = renderTablist("budget", (tabId) => { selected = tabId; });
+
+      const budgetTab = nav.querySelector("#tab-budget");
+      assert.ok(budgetTab);
+      assert.equal(budgetTab.getAttribute("aria-selected"), "true");
+      assert.equal(budgetTab.getAttribute("tabindex"), "0");
+      assert.ok(budgetTab.classList.contains("is-active"));
+
+      const tasksTab = nav.querySelector("#tab-tasks");
+      assert.equal(tasksTab.getAttribute("aria-selected"), "false");
+      assert.equal(tasksTab.getAttribute("tabindex"), "-1");
+
+      tasksTab.dispatchEvent({ type: "click" });
+      assert.equal(selected, "tasks");
     });
   });
 });

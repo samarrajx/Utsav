@@ -57,7 +57,8 @@ Format your response strictly as JSON conforming to:
           language
         },
         prompt: `Draft a high-conversion inquiry for ${channel}.`,
-        responseSchema: vendorMessageOutputSchema
+        responseSchema: vendorMessageOutputSchema,
+        maxOutputTokens: 512
       });
 
       return aiResponse;

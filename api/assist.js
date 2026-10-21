@@ -51,7 +51,8 @@ Format your response strictly as JSON conforming to:
           language
         },
         prompt: "Respond to the user. Include a verified patch if a plan change was requested.",
-        responseSchema: assistOutputSchema
+        responseSchema: assistOutputSchema,
+        maxOutputTokens: 1024
       });
 
       return aiResponse;

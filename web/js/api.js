@@ -8,16 +8,69 @@
 
 export const API_TIMEOUT_MS = 25000;
 
+let planAbortController = null;
+let assistAbortController = null;
+
+/**
+ * Abort any currently in-flight plan generation request
+ */
+export function abortInFlightPlan() {
+  if (planAbortController) {
+    planAbortController.abort();
+    planAbortController = null;
+  }
+}
+
+/**
+ * Get a fresh AbortSignal for plan generation, aborting any previous one
+ * @returns {AbortSignal}
+ */
+export function getPlanAbortSignal() {
+  abortInFlightPlan();
+  planAbortController = new AbortController();
+  return planAbortController.signal;
+}
+
+/**
+ * Abort any currently in-flight assistant request
+ */
+export function abortInFlightAssist() {
+  if (assistAbortController) {
+    assistAbortController.abort();
+    assistAbortController = null;
+  }
+}
+
+/**
+ * Get a fresh AbortSignal for assistant chat, aborting any previous one
+ * @returns {AbortSignal}
+ */
+export function getAssistAbortSignal() {
+  abortInFlightAssist();
+  assistAbortController = new AbortController();
+  return assistAbortController.signal;
+}
+
 /**
  * Universal safe POST request wrapper
  * @param {string} endpoint - Relative path (e.g. '/api/plan')
  * @param {Object} payload - JSON request payload
  * @param {number} [timeoutMs=25000]
+ * @param {Object} [options]
+ * @param {AbortSignal} [options.signal]
  * @returns {Promise<{ ok: boolean, data?: any, status?: number, error?: string }>}
  */
-export async function postApi(endpoint, payload, timeoutMs = API_TIMEOUT_MS) {
+export async function postApi(endpoint, payload, timeoutMs = API_TIMEOUT_MS, options = {}) {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeoutMs);
+
+  if (options.signal) {
+    if (options.signal.aborted) {
+      controller.abort();
+    } else {
+      options.signal.addEventListener("abort", () => controller.abort(), { once: true });
+    }
+  }
 
   try {
     const res = await fetch(endpoint, {
@@ -68,47 +121,51 @@ export async function postApi(endpoint, payload, timeoutMs = API_TIMEOUT_MS) {
  * @param {Object} params
  * @returns {Promise<{ ok: boolean, data?: any, error?: string }>}
  */
-export async function fetchIntake(params) {
-  return postApi("/api/intake", params);
+export async function fetchIntake(params, options = {}) {
+  return postApi("/api/intake", params, API_TIMEOUT_MS, options);
 }
 
 /**
  * Call /api/plan for a specific section (core | vendors | ideas)
  * @param {string} section
  * @param {Object} planParams
+ * @param {Object} [options]
  * @returns {Promise<{ ok: boolean, data?: any, error?: string }>}
  */
-export async function fetchPlanSection(section, planParams) {
+export async function fetchPlanSection(section, planParams, options = {}) {
   return postApi(`/api/plan?section=${encodeURIComponent(section)}`, {
     ...planParams,
     section
-  });
+  }, API_TIMEOUT_MS, options);
 }
 
 /**
  * Call /api/critique to audit a finished plan
  * @param {Object} plan
  * @param {string} [language='en']
+ * @param {Object} [options]
  * @returns {Promise<{ ok: boolean, data?: any, error?: string }>}
  */
-export async function fetchCritique(plan, language = "en") {
-  return postApi("/api/critique", { plan, language });
+export async function fetchCritique(plan, language = "en", options = {}) {
+  return postApi("/api/critique", { plan, language }, API_TIMEOUT_MS, options);
 }
 
 /**
  * Call /api/assist for chat and patches
  * @param {Object} params
+ * @param {Object} [options]
  * @returns {Promise<{ ok: boolean, data?: any, error?: string }>}
  */
-export async function fetchAssist(params) {
-  return postApi("/api/assist", params);
+export async function fetchAssist(params, options = {}) {
+  return postApi("/api/assist", params, API_TIMEOUT_MS, options);
 }
 
 /**
  * Call /api/vendor-message to draft outreach
  * @param {Object} params
+ * @param {Object} [options]
  * @returns {Promise<{ ok: boolean, data?: any, error?: string }>}
  */
-export async function fetchVendorMessage(params) {
-  return postApi("/api/vendor-message", params);
+export async function fetchVendorMessage(params, options = {}) {
+  return postApi("/api/vendor-message", params, API_TIMEOUT_MS, options);
 }

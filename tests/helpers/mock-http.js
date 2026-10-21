@@ -37,6 +37,9 @@ export function createMockResponse() {
       this.headers[key.toLowerCase()] = value;
       return this;
     },
+    getHeader(key) {
+      return this.headers[key.toLowerCase()] || null;
+    },
     json(payload) {
       this.data = payload;
       return this;

@@ -19,6 +19,7 @@ import {
   scheduleMilestones,
   checkFeasibility
 } from "../web/js/engine/index.js";
+import { apiResponseCache, generateCacheKey } from "./_lib/cache.js";
 
 export default async function handler(req, res) {
   // Merge query parameters if section is provided in query
@@ -43,6 +44,16 @@ export default async function handler(req, res) {
         mustHaves,
         language = "en"
       } = data;
+
+      // Check cache for this plan section
+      const modelName = process.env.GEMINI_MODEL || "gemini-2.5-flash-lite";
+      const cacheKey = generateCacheKey(`plan:${section}`, data, modelName);
+      const cached = apiResponseCache.get(cacheKey);
+      if (cached) {
+        if (res?.setHeader) res.setHeader("X-Cache", "HIT");
+        return cached;
+      }
+      if (res?.setHeader) res.setHeader("X-Cache", "MISS");
 
       const template = getEventTemplate(type);
 
@@ -99,7 +110,8 @@ CRITICAL REQUIREMENTS:
             groundedMilestones: baselineMilestones
           },
           prompt: "Generate personalized core plan structure.",
-          responseSchema: planCoreOutputSchema
+          responseSchema: planCoreOutputSchema,
+          maxOutputTokens: 2048
         });
 
         // Deterministic engine invariant: Ensure planned category amounts sum EXACTLY to budget
@@ -108,6 +120,7 @@ CRITICAL REQUIREMENTS:
           cat.planned = reallocated[idx].planned;
         });
 
+        apiResponseCache.set(cacheKey, aiResponse);
         return aiResponse;
       }
 
@@ -148,9 +161,11 @@ Format your response strictly as JSON conforming to:
             vendorTemplates: template.vendorCategories
           },
           prompt: "Generate targeted vendor checklist with book-by dates and vetting questions.",
-          responseSchema: planVendorsOutputSchema
+          responseSchema: planVendorsOutputSchema,
+          maxOutputTokens: 1536
         });
 
+        apiResponseCache.set(cacheKey, aiResponse);
         return aiResponse;
       }
 
@@ -189,9 +204,11 @@ Format your response strictly as JSON conforming to:
             mustHaves
           },
           prompt: "Generate 3 to 5 unique celebration ideas with 'whyItFits' justification.",
-          responseSchema: planIdeasOutputSchema
+          responseSchema: planIdeasOutputSchema,
+          maxOutputTokens: 1536
         });
 
+        apiResponseCache.set(cacheKey, aiResponse);
         return aiResponse;
       }
 

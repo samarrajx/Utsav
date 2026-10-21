@@ -100,6 +100,8 @@ export function rawRemove(key) {
  * Reset all memory and storage state (for testing)
  */
 export function clearAllStorage() {
+  flushSaveEvent();
+  pendingEventsToPersist = null;
   memoryStore = {};
   try {
     if (isLocalStorageAvailable()) {
@@ -116,11 +118,43 @@ export function clearAllStorage() {
 // Event Repository
 // ============================================================================
 
+let pendingEventsToPersist = null;
+let saveDebounceTimer = null;
+
+/**
+ * Flush any debounced event writes immediately to localStorage
+ */
+export function flushSaveEvent() {
+  if (saveDebounceTimer) {
+    clearTimeout(saveDebounceTimer);
+    saveDebounceTimer = null;
+  }
+  if (pendingEventsToPersist) {
+    rawSet(STORAGE_KEYS.EVENTS, JSON.stringify(pendingEventsToPersist));
+    pendingEventsToPersist = null;
+  }
+}
+
+// Ensure flush on window unload or tab backgrounding
+if (typeof window !== "undefined") {
+  window.addEventListener("pagehide", flushSaveEvent);
+  if (typeof document !== "undefined") {
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState === "hidden") {
+        flushSaveEvent();
+      }
+    });
+  }
+}
+
 /**
  * Retrieve all saved celebration events
  * @returns {Array<Object>}
  */
 export function getEvents() {
+  if (pendingEventsToPersist) {
+    return pendingEventsToPersist;
+  }
   const raw = rawGet(STORAGE_KEYS.EVENTS);
   if (!raw) return [];
 
@@ -150,10 +184,13 @@ export function getEvent(id) {
 
 /**
  * Save or update an event. Preserves schemaVersion.
+ * Debounces disk/localStorage persistence by 300ms trailing.
  * @param {Object} event
+ * @param {Object} [options]
+ * @param {boolean} [options.immediate=false] - If true, bypass debounce and flush synchronously
  * @returns {Object} Saved event
  */
-export function saveEvent(event) {
+export function saveEvent(event, { immediate = false } = {}) {
   if (!event || typeof event !== "object" || !event.id) {
     throw new TypeError("Cannot save invalid event object without an 'id'");
   }
@@ -167,13 +204,24 @@ export function saveEvent(event) {
     updatedAt: new Date().toISOString()
   };
 
+  const nextEvents = [...events];
   if (existingIndex >= 0) {
-    events[existingIndex] = eventToSave;
+    nextEvents[existingIndex] = eventToSave;
   } else {
-    events.push(eventToSave);
+    nextEvents.push(eventToSave);
   }
 
-  rawSet(STORAGE_KEYS.EVENTS, JSON.stringify(events));
+  pendingEventsToPersist = nextEvents;
+
+  if (immediate) {
+    flushSaveEvent();
+  } else {
+    if (saveDebounceTimer) clearTimeout(saveDebounceTimer);
+    saveDebounceTimer = setTimeout(() => {
+      flushSaveEvent();
+    }, 300);
+  }
+
   return eventToSave;
 }
 
@@ -183,10 +231,12 @@ export function saveEvent(event) {
  * @returns {boolean} True if found and deleted
  */
 export function deleteEvent(id) {
+  flushSaveEvent();
   const events = getEvents();
   const filtered = events.filter((e) => e.id !== id);
   if (filtered.length === events.length) return false;
 
+  pendingEventsToPersist = filtered;
   rawSet(STORAGE_KEYS.EVENTS, JSON.stringify(filtered));
 
   if (getActiveEventId() === id) {

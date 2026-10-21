@@ -11,7 +11,6 @@ import { formatDisplayDate, daysBetween } from "../engine/dates.js";
 import { calculateAttendanceFromList } from "../engine/catering.js";
 import { fetchCritique } from "../api.js";
 import { exportEventJSON, downloadTextFile } from "../storage.js";
-import { buildICS } from "../engine/ics.js";
 
 /**
  * Render the Overview Tab Panel
@@ -306,8 +305,9 @@ export function renderOverviewTab(event, { onUpdate, onNavigateTab, announce }) 
         type: "button",
         className: "btn btn-secondary btn-sm",
         title: "Download calendar file to add milestones to Google/Apple Calendar",
-        onClick: () => {
+        onClick: async () => {
           try {
+            const { buildICS } = await import("../engine/ics.js");
             const icsContent = buildICS(event);
             const safeName = (event.title || "utsav").toLowerCase().replace(/[^a-z0-9]+/g, "-");
             downloadTextFile(icsContent, `${safeName}-timeline.ics`, "text/calendar");

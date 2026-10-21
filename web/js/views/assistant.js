@@ -6,7 +6,7 @@
  */
 
 import { el, icon } from "../dom.js";
-import { fetchAssist } from "../api.js";
+import { fetchAssist, getAssistAbortSignal } from "../api.js";
 import { applyPatch, deepClone } from "../engine/patch.js";
 
 // Session undo stack
@@ -214,12 +214,13 @@ export function renderAssistantWidget(event, { onUpdate, announce }) {
     renderView();
 
     try {
+      const signal = getAssistAbortSignal();
       const res = await fetchAssist({
         message: queryText,
         plan: event,
         history: messages.slice(-4),
         language: event.language || "en"
-      });
+      }, { signal });
 
       if (res.ok && res.data) {
         const { reply, patch } = res.data;
