@@ -1,0 +1,29 @@
+{
+  "name": "utsav",
+  "version": "0.1.0",
+  "description": "AI Celebration & Event Planner",
+  "type": "module",
+  "scripts": {
+    "lint": "eslint .",
+    "test": "node --test",
+    "test:coverage": "node --test --experimental-test-coverage",
+    "audit": "npm audit --audit-level=high"
+  },
+  "keywords": [
+    "event-planner",
+    "celebration",
+    "gemini",
+    "genai"
+  ],
+  "author": "Samar Raj",
+  "license": "MIT",
+  "dependencies": {
+    "@google/genai": "^2.30.0",
+    "zod": "^3.24.2"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.20.0",
+    "eslint": "^9.20.0",
+    "globals": "^15.15.0"
+  }
+}

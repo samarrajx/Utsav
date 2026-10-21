@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Utsav — Intelligent AI celebration and event planner with deterministic budgeting, milestone tracking, and vendor checklists.">
+  <title>Utsav — AI Celebration &amp; Event Planner</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+
+  <!-- ARIA Live region for screen reader status updates -->
+  <div id="live-announcer" class="sr-only" aria-live="polite" aria-atomic="true"></div>
+
+  <div id="app" class="app-shell">
+    <header class="app-header" role="banner">
+      <div class="header-brand">
+        <span class="brand-motif" aria-hidden="true">✦</span>
+        <h1 class="brand-title">Utsav</h1>
+        <span class="brand-tagline">AI Celebration &amp; Event Planner</span>
+      </div>
+      <div class="header-status">
+        <span id="api-status-badge" class="badge badge-neutral" role="status">Checking service...</span>
+      </div>
+    </header>
+
+    <main id="main-content" class="app-main" role="main" tabindex="-1">
+      <section class="hero-card" aria-labelledby="welcome-heading">
+        <div class="hero-content">
+          <h2 id="welcome-heading" class="hero-title">Plan Life's Grandest Moments</h2>
+          <p class="hero-description">
+            From intimate weddings and milestone birthdays to vibrant community festivals. 
+            Smart intake, deterministic budget mathematics, and proactive AI assistance.
+          </p>
+          <div class="hero-actions">
+            <a href="#/new" class="btn btn-primary">Start Planning</a>
+            <a href="#/events" class="btn btn-secondary">My Events</a>
+          </div>
+        </div>
+      </section>
+
+      <section class="status-panel" aria-label="System status">
+        <div class="card status-card">
+          <h3 class="card-title">System Status</h3>
+          <p id="ping-result" class="status-text">Connecting to Utsav API...</p>
+        </div>
+      </section>
+    </main>
+
+    <footer class="app-footer" role="contentinfo">
+      <p>Utsav — Plans are AI-assisted suggestions. Confirm prices and availability directly with vendors.</p>
+    </footer>
+  </div>
+
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>
