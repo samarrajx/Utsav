@@ -12,6 +12,7 @@ import {
   saveSettings,
   clearAllStorage,
   rawSet,
+  importEventFromJSON,
   STORAGE_KEYS
 } from "../../web/js/storage.js";
 
@@ -124,6 +125,37 @@ describe("Frontend Storage Manager", () => {
 
       setActiveEventId("second_evt");
       assert.equal(getActiveEvent().id, "second_evt");
+    });
+  });
+
+  describe("Backup Import Validation", () => {
+    it("should successfully parse and extract a valid Utsav event backup", () => {
+      const validBackup = JSON.stringify({
+        exportedAt: new Date().toISOString(),
+        schemaVersion: 1,
+        event: {
+          id: "backup_test_1",
+          title: "Anniversary Party",
+          date: "2026-12-10",
+          city: "Delhi"
+        }
+      });
+
+      const imported = importEventFromJSON(validBackup);
+      assert.equal(imported.id, "backup_test_1");
+      assert.equal(imported.title, "Anniversary Party");
+    });
+
+    it("should reject corrupted or non-JSON input", () => {
+      assert.throws(() => {
+        importEventFromJSON("not-a-json-string");
+      }, /Invalid JSON file/);
+    });
+
+    it("should reject JSON without an event object or id", () => {
+      assert.throws(() => {
+        importEventFromJSON(JSON.stringify({ someOtherData: true }));
+      }, /does not contain a valid Utsav event backup/);
     });
   });
 });

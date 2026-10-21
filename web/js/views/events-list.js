@@ -3,7 +3,7 @@
  */
 
 import { el, icon } from "../dom.js";
-import { getEvents, deleteEvent, setActiveEventId } from "../storage.js";
+import { getEvents, deleteEvent, setActiveEventId, saveEvent, importEventFromJSON } from "../storage.js";
 import { formatDisplayDate } from "../engine/dates.js";
 import { formatCurrency } from "../engine/money.js";
 import { navigate } from "../router.js";
@@ -31,6 +31,37 @@ export function renderEventsList({ onSelectEvent, onRefresh }) {
       }, [
         icon("plus", "btn-icon"),
         "Plan New Event"
+      ]),
+      el("label", {
+        className: "btn btn-secondary",
+        title: "Restore a Utsav JSON backup",
+        style: { cursor: "pointer" }
+      }, [
+        icon("upload", "btn-icon"),
+        "Import Backup",
+        el("input", {
+          type: "file",
+          accept: ".json,application/json",
+          style: { display: "none" },
+          onChange: (e) => {
+            const file = e.target.files && e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (ev) => {
+              try {
+                const evt = importEventFromJSON(ev.target.result);
+                // Give it a new ID to avoid conflicts
+                evt.id = `imported_${Date.now()}`;
+                saveEvent(evt);
+                setActiveEventId(evt.id);
+                if (onRefresh) onRefresh();
+              } catch (err) {
+                alert(err.message);
+              }
+            };
+            reader.readAsText(file);
+          }
+        })
       ])
     ])
   ]);
