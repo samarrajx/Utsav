@@ -5,7 +5,7 @@ import handler from "../api/ping.js";
 describe("API: /api/ping", () => {
   it("should respond with ok: true and timestamp using res mock", async () => {
     let statusCode = null;
-    let headers = {};
+    const headers = {};
     let responseData = null;
 
     const req = { method: "GET" };

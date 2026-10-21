@@ -25,46 +25,51 @@ export function renderTablist(activeTab = "overview", onSelectTab) {
   const tabButtons = [];
 
   const nav = el("nav", { className: "event-tabs-nav", "aria-label": "Event sections" }, [
-    el("div", {
-      className: "tablist",
-      role: "tablist",
-      "aria-label": "Event planning tabs"
-    }, TAB_DEFINITIONS.map((tabDef, idx) => {
-      const isSelected = tabDef.id === activeTab;
-      const btn = el("button", {
-        type: "button",
-        role: "tab",
-        id: `tab-${tabDef.id}`,
-        className: `tab-btn ${isSelected ? "is-active" : ""}`,
-        "aria-selected": isSelected ? "true" : "false",
-        "aria-controls": `tabpanel-${tabDef.id}`,
-        tabindex: isSelected ? "0" : "-1",
-        onClick: () => onSelectTab(tabDef.id),
-        onKeydown: (e) => {
-          let nextIdx = idx;
-          if (e.key === "ArrowRight") {
-            nextIdx = (idx + 1) % TAB_DEFINITIONS.length;
-          } else if (e.key === "ArrowLeft") {
-            nextIdx = (idx - 1 + TAB_DEFINITIONS.length) % TAB_DEFINITIONS.length;
-          } else if (e.key === "Home") {
-            nextIdx = 0;
-          } else if (e.key === "End") {
-            nextIdx = TAB_DEFINITIONS.length - 1;
-          } else {
-            return;
-          }
-          e.preventDefault();
-          tabButtons[nextIdx]?.focus();
-          onSelectTab(TAB_DEFINITIONS[nextIdx].id);
-        }
-      }, [
-        icon(tabDef.iconName, "tab-icon"),
-        el("span", { className: "tab-label" }, tabDef.label)
-      ]);
+    el(
+      "div",
+      {
+        className: "tablist",
+        role: "tablist",
+        "aria-label": "Event planning tabs"
+      },
+      TAB_DEFINITIONS.map((tabDef, idx) => {
+        const isSelected = tabDef.id === activeTab;
+        const btn = el(
+          "button",
+          {
+            type: "button",
+            role: "tab",
+            id: `tab-${tabDef.id}`,
+            className: `tab-btn ${isSelected ? "is-active" : ""}`,
+            "aria-selected": isSelected ? "true" : "false",
+            "aria-controls": `tabpanel-${tabDef.id}`,
+            tabindex: isSelected ? "0" : "-1",
+            onClick: () => onSelectTab(tabDef.id),
+            onKeydown: (e) => {
+              let nextIdx = idx;
+              if (e.key === "ArrowRight") {
+                nextIdx = (idx + 1) % TAB_DEFINITIONS.length;
+              } else if (e.key === "ArrowLeft") {
+                nextIdx = (idx - 1 + TAB_DEFINITIONS.length) % TAB_DEFINITIONS.length;
+              } else if (e.key === "Home") {
+                nextIdx = 0;
+              } else if (e.key === "End") {
+                nextIdx = TAB_DEFINITIONS.length - 1;
+              } else {
+                return;
+              }
+              e.preventDefault();
+              tabButtons[nextIdx]?.focus();
+              onSelectTab(TAB_DEFINITIONS[nextIdx].id);
+            }
+          },
+          [icon(tabDef.iconName, "tab-icon"), el("span", { className: "tab-label" }, tabDef.label)]
+        );
 
-      tabButtons.push(btn);
-      return btn;
-    }))
+        tabButtons.push(btn);
+        return btn;
+      })
+    )
   ]);
 
   return nav;

@@ -10,7 +10,8 @@ export const BENCHMARK_METADATA = {
   approximate: true,
   lastUpdated: "2026-01",
   currencyBase: "INR",
-  notice: "Benchmark figures are market approximations for planning guidance. Always confirm final quotes directly with vendors."
+  notice:
+    "Benchmark figures are market approximations for planning guidance. Always confirm final quotes directly with vendors."
 };
 
 /**
@@ -62,17 +63,17 @@ export const COST_BENCHMARKS_INR = {
   birthday: {
     perPlate: { min: 400, mid: 900, max: 2000 },
     fixedCosts: {
-      min: 35000,  // Small hall/home decor, cake, music
+      min: 35000, // Small hall/home decor, cake, music
       mid: 120000, // Party venue, themed decor, DJ, photographer
-      max: 350000  // Premium club/resort, lavish decor, live act
+      max: 350000 // Premium club/resort, lavish decor, live act
     }
   },
   community: {
     perPlate: { min: 200, mid: 500, max: 1200 },
     fixedCosts: {
-      min: 75000,  // Basic grounds, PA system, basic banners, permits
+      min: 75000, // Basic grounds, PA system, basic banners, permits
       mid: 250000, // Staging, lighting, sound engineer, generators, sanitation
-      max: 750000  // Large stage, LED walls, extensive security, broadcast
+      max: 750000 // Large stage, LED walls, extensive security, broadcast
     }
   }
 };
@@ -83,11 +84,39 @@ export const COST_BENCHMARKS_INR = {
 export const CITY_TIERS = {
   TIER_1: {
     multiplier: 1.35,
-    cities: ["mumbai", "delhi", "new delhi", "bengaluru", "bangalore", "hyderabad", "chennai", "kolkata", "pune", "gurugram", "noida"]
+    cities: [
+      "mumbai",
+      "delhi",
+      "new delhi",
+      "bengaluru",
+      "bangalore",
+      "hyderabad",
+      "chennai",
+      "kolkata",
+      "pune",
+      "gurugram",
+      "noida"
+    ]
   },
   TIER_2: {
     multiplier: 1.05,
-    cities: ["jaipur", "lucknow", "chandigarh", "ahmedabad", "goa", "kochi", "cochin", "indore", "bhopal", "surat", "nagpur", "patna", "vadodara", "dehradun", "udaipur"]
+    cities: [
+      "jaipur",
+      "lucknow",
+      "chandigarh",
+      "ahmedabad",
+      "goa",
+      "kochi",
+      "cochin",
+      "indore",
+      "bhopal",
+      "surat",
+      "nagpur",
+      "patna",
+      "vadodara",
+      "dehradun",
+      "udaipur"
+    ]
   },
   TIER_3: {
     multiplier: 0.85,

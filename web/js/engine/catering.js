@@ -31,7 +31,7 @@ export function calculateAttendance({
   const rate = Math.min(1.0, Math.max(0.0, Number(showUpRate) || DEFAULT_SHOW_UP_RATE));
 
   const totalInvited = conf + pend + decl;
-  const rawExpected = conf + (pend * rate);
+  const rawExpected = conf + pend * rate;
   const expectedAttendance = Math.round(rawExpected);
 
   return {

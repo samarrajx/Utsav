@@ -193,6 +193,14 @@ function matchesSelector(element, selector) {
   const parts = selector.trim().split(/\s+/);
   const target = parts[parts.length - 1]; // Support simple or descendent selectors
 
+  // Tag + attribute e.g. button[type='submit'] or [type='submit']
+  const attrMatch = target.match(/^(?:([a-zA-Z0-9]+))?\[([a-zA-Z0-9_-]+)=['"]?([^'"]+)['"]?\]$/);
+  if (attrMatch) {
+    const [, tag, attr, val] = attrMatch;
+    if (tag && element.tagName.toLowerCase() !== tag.toLowerCase()) return false;
+    return element.getAttribute(attr) === val;
+  }
+
   if (target.startsWith("#")) {
     return element.getAttribute("id") === target.slice(1);
   }
@@ -201,7 +209,7 @@ function matchesSelector(element, selector) {
     return classNames.every((cls) => element.classList.contains(cls));
   }
   if (target.includes("=")) {
-    const [attr, val] = target.replace(/[[\]"]/g, "").split("=");
+    const [attr, val] = target.replace(/[[\]'"]/g, "").split("=");
     return element.getAttribute(attr) === val;
   }
   return element.tagName.toLowerCase() === target.toLowerCase();
@@ -221,9 +229,25 @@ export function setupMockDOM() {
   const originalDOMParser = globalThis.DOMParser;
   const originalNode = globalThis.Node;
 
+  const originalWindow = globalThis.window;
+
   globalThis.Node = MockNode;
   globalThis.MockElement = MockElement;
   globalThis.MockTextNode = MockTextNode;
+
+  let currentHash = "";
+  globalThis.window = {
+    location: {
+      get hash() {
+        return currentHash;
+      },
+      set hash(v) {
+        currentHash = v;
+      }
+    },
+    addEventListener: () => {},
+    removeEventListener: () => {}
+  };
 
   const bodyElement = new MockElement("body");
 
@@ -252,6 +276,7 @@ export function setupMockDOM() {
     globalThis.document = originalDocument;
     globalThis.DOMParser = originalDOMParser;
     globalThis.Node = originalNode;
+    globalThis.window = originalWindow;
     delete globalThis.MockElement;
     delete globalThis.MockTextNode;
   };

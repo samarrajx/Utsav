@@ -5,8 +5,8 @@
 ### 🌐 **[utsav-tau.vercel.app](https://utsav-tau.vercel.app/)**
 
 [![Live on Vercel](https://img.shields.io/badge/Live-utsav--tau.vercel.app-brightgreen?style=for-the-badge&logo=vercel)](https://utsav-tau.vercel.app/)
-[![Tests](https://img.shields.io/badge/Tests-143%20passed%20%7C%200%20failed-success?style=for-the-badge&logo=node.js)](./tests/)
-[![Coverage](https://img.shields.io/badge/Coverage-94.8%25%20line%20%7C%2072.0%25%20branch-blue?style=for-the-badge)](./tests/)
+[![Tests](https://img.shields.io/badge/Tests-147%20passed%20%7C%200%20failed-success?style=for-the-badge&logo=node.js)](./tests/)
+[![Coverage](https://img.shields.io/badge/Coverage-96.1%25%20line%20%7C%2080.8%25%20branch-blue?style=for-the-badge)](./tests/)
 [![Vanilla JS](https://img.shields.io/badge/Vanilla-ES%20Modules-yellow?style=for-the-badge&logo=javascript)](./web/)
 [![Model](https://img.shields.io/badge/Gemini-2.5%20Flash%20Lite-orange?style=for-the-badge&logo=google)](https://ai.google.dev/)
 
@@ -16,7 +16,7 @@
 
 ## 🪔 Chosen Vertical & Persona
 
-**Utsav** (उत्सव — Sanskrit for *celebration*) is an AI celebration planner built for the Indian market. It targets the **wedding, birthday, and festival planning** vertical across India's urban and semi-urban population.
+**Utsav** (उत्सव — Sanskrit for _celebration_) is an AI celebration planner built for the Indian market. It targets the **wedding, birthday, and festival planning** vertical across India's urban and semi-urban population.
 
 **Target persona:** A busy urban Indian in their 25–45 age bracket managing a significant life event — a wedding in Jaipur, a 50th birthday bash in Mumbai, or a Diwali gathering in Bengaluru. They know their budget (roughly), have a date in mind, and are overwhelmed by vendor complexity, regional cost variation, and multi-stakeholder coordination. Utsav turns a 15-minute conversation into a complete, actionable, budget-validated event plan — in English, Hindi, or Hinglish.
 
@@ -25,21 +25,22 @@
 ## ✨ Feature List
 
 <!-- screenshot -->
-> *Dashboard screenshot: 7-tab planner interface showing Overview, Tasks, Budget, Vendors, Timeline, Guests, and Ideas tabs with an AI-generated wedding plan for Delhi.*
 
-| Feature | Description |
-|---|---|
-| **Smart Intake** | Conversational AI form — asks follow-up questions dynamically until enough context is gathered |
-| **Feasibility Verdict** | 4-band traffic-light rating (Comfortable / Tight / Stretch / Infeasible) with per-category breakdown |
-| **Parallel Plan Generation** | 3 concurrent Gemini calls produce Conservative, Balanced, and Premium plan variants simultaneously |
-| **Critic Pass** | A fourth AI call reviews the chosen plan for logical inconsistencies and budget math errors |
-| **7-Tab Dashboard** | Overview · Tasks · Budget · Vendors · Timeline · Guests · Ideas — all derived from a single plan object |
-| **Assistant Chat + Patch Diffs** | Natural-language chat that returns validated JSON patches; user previews a diff before applying |
-| **Vendor Message Drafter** | One-click drafts a professional enquiry message for any vendor in the plan |
-| **Export** | `.ics` calendar (RFC 5545), JSON backup/import, Print-to-PDF |
-| **Multilingual** | Interface and AI responses in English, Hindi, or Hinglish |
-| **Fallback Plan** | Offline baseline plan generated from static benchmarks if the Gemini API is unreachable |
-| **City & Season Pricing** | Benchmark multipliers for Tier-1 / Tier-2 / Tier-3 cities and peak / off-peak seasons |
+> _Dashboard screenshot: 7-tab planner interface showing Overview, Tasks, Budget, Vendors, Timeline, Guests, and Ideas tabs with an AI-generated wedding plan for Delhi._
+
+| Feature                          | Description                                                                                             |
+| -------------------------------- | ------------------------------------------------------------------------------------------------------- |
+| **Smart Intake**                 | Conversational AI form — asks follow-up questions dynamically until enough context is gathered          |
+| **Feasibility Verdict**          | 4-band traffic-light rating (Comfortable / Tight / Stretch / Infeasible) with per-category breakdown    |
+| **Parallel Plan Generation**     | 3 concurrent Gemini calls produce Conservative, Balanced, and Premium plan variants simultaneously      |
+| **Critic Pass**                  | A fourth AI call reviews the chosen plan for logical inconsistencies and budget math errors             |
+| **7-Tab Dashboard**              | Overview · Tasks · Budget · Vendors · Timeline · Guests · Ideas — all derived from a single plan object |
+| **Assistant Chat + Patch Diffs** | Natural-language chat that returns validated JSON patches; user previews a diff before applying         |
+| **Vendor Message Drafter**       | One-click drafts a professional enquiry message for any vendor in the plan                              |
+| **Export**                       | `.ics` calendar (RFC 5545), JSON backup/import, Print-to-PDF                                            |
+| **Multilingual**                 | Interface and AI responses in English, Hindi, or Hinglish                                               |
+| **Fallback Plan**                | Offline baseline plan generated from static benchmarks if the Gemini API is unreachable                 |
+| **City & Season Pricing**        | Benchmark multipliers for Tier-1 / Tier-2 / Tier-3 cities and peak / off-peak seasons                   |
 
 ---
 
@@ -104,7 +105,7 @@ This is the central design principle of Utsav:
 
 > **The AI model makes qualitative judgements. Deterministic engine code does all arithmetic.**
 
-The Gemini model is never asked to add up numbers or compute percentages. Instead, it is given structured inputs and asked to *classify*, *prioritise*, and *narrate*. All budget arithmetic (Hamilton-Hare proportional allocation, catering headcount adjustments, city-tier multipliers) runs in pure JavaScript engine modules with unit-tested functions.
+The Gemini model is never asked to add up numbers or compute percentages. Instead, it is given structured inputs and asked to _classify_, _prioritise_, and _narrate_. All budget arithmetic (Hamilton-Hare proportional allocation, catering headcount adjustments, city-tier multipliers) runs in pure JavaScript engine modules with unit-tested functions.
 
 This prevents LLM arithmetic drift and makes the system auditable — every rupee in the budget can be traced to a formula, not a model guess.
 
@@ -160,7 +161,7 @@ This loop keeps pricing data deterministic (engine-sourced) while letting the mo
 
 ## 🩹 Patch System
 
-The **Assistant Chat** tab allows users to modify their plan through natural language (e.g., *"Switch the catering to North Indian buffet and reduce the photography budget by ₹20,000"*).
+The **Assistant Chat** tab allows users to modify their plan through natural language (e.g., _"Switch the catering to North Indian buffet and reduce the photography budget by ₹20,000"_).
 
 How it works:
 
@@ -187,43 +188,43 @@ If the Gemini API is unreachable (network error, quota exhaustion, or API key ab
 
 ## ⚡ Efficiency
 
-| Optimization | Implementation & Measured Impact |
-|---|---|
-| **Parallel Section Calls** | `POST /api/plan` runs 3 concurrent calls for `core`, `vendors`, and `ideas`, cutting generation wait time by ~65% compared to serial generation. |
-| **No Framework / Zero Bundle** | Pure ES modules delivered directly to the browser. Zero transpilation, 0 ms build step, total frontend footprint < 60 KB uncompressed. |
-| **Token Discipline** | Explicit `maxOutputTokens` caps per endpoint: `intake` (512), `plan core` (2048), `vendors` (1536), `ideas` (1536), `critique` (1024), `assist` (1024), `vendor-message` (512). Prevents runaway model generation and caps latency. |
-| **Server Response Cache** | In-memory LRU cache (`api/_lib/cache.js`, 100 entries, 10-minute TTL) keyed by SHA-256 digest of normalized request payloads for `intake` and `plan` sections. Emits `X-Cache: HIT|MISS` headers. Cache is per serverless instance. |
-| **Request Cancellation** | Frontend attaches `AbortController` signals to AI requests (`api.js`), automatically aborting pending generation or chat requests when users navigate away or enter new prompts. |
-| **Debounced Storage** | `saveEvent` writes to `localStorage` are debounced with a 300 ms trailing timer to eliminate disk I/O thrashing during slider or checklist updates, and flushed immediately on `pagehide` and `visibilitychange`. |
-| **Lazy-Loaded Modules** | Rarely accessed modules (`views/settings.js`, `views/vendor-outreach-modal.js`, `engine/ics.js`) are dynamically imported with `import()` only when invoked. Entry modules are preloaded with `<link rel="modulepreload">`. |
-| **In-Place Tab Re-rendering** | Active tab transitions re-render only the active `.tabpanel-content` and ARIA attributes without unmounting the master shell, sidebar, or right-rail assistant widget. |
-| **Browser Cache Headers** | `/css/*` and `/js/*` served with `Cache-Control: public, max-age=3600, stale-while-revalidate=86400`; `/api/*` marked `no-store`; cross-origin isolation enforced via COOP and CORP headers. |
+| Optimization                   | Implementation & Measured Impact                                                                                                                                                                                                    |
+| ------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Parallel Section Calls**     | `POST /api/plan` runs 3 concurrent calls for `core`, `vendors`, and `ideas`, cutting generation wait time by ~65% compared to serial generation.                                                                                    |
+| **No Framework / Zero Bundle** | Pure ES modules delivered directly to the browser. Zero transpilation, 0 ms build step, total frontend footprint < 60 KB uncompressed.                                                                                              |
+| **Token Discipline**           | Explicit `maxOutputTokens` caps per endpoint: `intake` (512), `plan core` (2048), `vendors` (1536), `ideas` (1536), `critique` (1024), `assist` (1024), `vendor-message` (512). Prevents runaway model generation and caps latency. |
+| **Server Response Cache**      | In-memory LRU cache (`api/_lib/cache.js`, 100 entries, 10-minute TTL) keyed by SHA-256 digest of normalized request payloads for `intake` and `plan` sections. Emits `X-Cache: HIT                                                  | MISS` headers. Cache is per serverless instance. |
+| **Request Cancellation**       | Frontend attaches `AbortController` signals to AI requests (`api.js`), automatically aborting pending generation or chat requests when users navigate away or enter new prompts.                                                    |
+| **Debounced Storage**          | `saveEvent` writes to `localStorage` are debounced with a 300 ms trailing timer to eliminate disk I/O thrashing during slider or checklist updates, and flushed immediately on `pagehide` and `visibilitychange`.                   |
+| **Lazy-Loaded Modules**        | Rarely accessed modules (`views/settings.js`, `views/vendor-outreach-modal.js`, `engine/ics.js`) are dynamically imported with `import()` only when invoked. Entry modules are preloaded with `<link rel="modulepreload">`.         |
+| **In-Place Tab Re-rendering**  | Active tab transitions re-render only the active `.tabpanel-content` and ARIA attributes without unmounting the master shell, sidebar, or right-rail assistant widget.                                                              |
+| **Browser Cache Headers**      | `/css/*` and `/js/*` served with `Cache-Control: public, max-age=3600, stale-while-revalidate=86400`; `/api/*` marked `no-store`; cross-origin isolation enforced via COOP and CORP headers.                                        |
 
 ---
 
 ## 📐 Assumptions
 
-| Assumption | Detail |
-|---|---|
-| **Benchmark figures** | Approximate ~2024 India market rates; sourced from public wedding/event industry reports. Treat as order-of-magnitude estimates, not binding quotes. |
-| **Currency** | Multi-currency support: Indian Rupee (₹ INR) is default; USD ($), EUR (€), GBP (£), and AED (د.إ) are supported in settings via benchmark conversion multipliers. |
-| **Show-up rate** | Default **75%** applied to pending/unconfirmed RSVPs for catering sizing. Formula: `expectedAttendance = confirmed + Math.round(pending × 0.75)`. |
-| **City tiers** | Tier-1 (Mumbai, Delhi, Bengaluru, Hyderabad, Chennai, Pune), Tier-2 (Jaipur, Ahmedabad, Lucknow, Kochi, …), Tier-3 (all others). Multipliers: 1.0× / 0.75× / 0.55× respectively. |
-| **Season** | Peak (Oct–Feb, May–Jun) and off-peak multipliers applied to venue and catering line items. |
-| **Plan variants** | "Conservative", "Balanced", "Premium" are relative to the user's stated budget — not absolute price tiers. |
+| Assumption            | Detail                                                                                                                                                                           |
+| --------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Benchmark figures** | Approximate ~2024 India market rates; sourced from public wedding/event industry reports. Treat as order-of-magnitude estimates, not binding quotes.                             |
+| **Currency**          | Multi-currency support: Indian Rupee (₹ INR) is default; USD ($), EUR (€), GBP (£), and AED (د.إ) are supported in settings via benchmark conversion multipliers.                |
+| **Show-up rate**      | Default **75%** applied to pending/unconfirmed RSVPs for catering sizing. Formula: `expectedAttendance = confirmed + Math.round(pending × 0.75)`.                                |
+| **City tiers**        | Tier-1 (Mumbai, Delhi, Bengaluru, Hyderabad, Chennai, Pune), Tier-2 (Jaipur, Ahmedabad, Lucknow, Kochi, …), Tier-3 (all others). Multipliers: 1.0× / 0.75× / 0.55× respectively. |
+| **Season**            | Peak (Oct–Feb, May–Jun) and off-peak multipliers applied to venue and catering line items.                                                                                       |
+| **Plan variants**     | "Conservative", "Balanced", "Premium" are relative to the user's stated budget — not absolute price tiers.                                                                       |
 
 ---
 
 ## 🔐 Security
 
-| Control | Implementation |
-|---|---|
-| **API key isolation** | `GEMINI_API_KEY` is read only inside Vercel serverless functions. It is never sent to the browser or logged. |
-| **Input validation** | All API request bodies are parsed through **Zod schemas** before any processing. Invalid payloads return `400` immediately. |
-| **Prompt injection defence** | User-supplied strings are never interpolated directly into system prompts. They are inserted into structured `user` turn content with role separation enforced by the API. |
-| **CSP headers** | `Content-Security-Policy` strictly enforces `connect-src 'self'`. The browser never connects directly to Google; all AI calls are proxied through serverless functions where the API key is secured. |
-| **Rate limiting** | In-memory sliding-window limiter: **30 requests / minute** per IP on all `/api/*` routes (`api/_lib/security.js`). |
-| **Origin check** | API routes enforce strict same-origin host matching (`matchesHost`). Subdomain spoofing (such as `localhost.evil.com`) and foreign `.vercel.app` domains are rejected with `403 Forbidden`. |
+| Control                      | Implementation                                                                                                                                                                                       |
+| ---------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **API key isolation**        | `GEMINI_API_KEY` is read only inside Vercel serverless functions. It is never sent to the browser or logged.                                                                                         |
+| **Input validation**         | All API request bodies are parsed through **Zod schemas** before any processing. Invalid payloads return `400` immediately.                                                                          |
+| **Prompt injection defence** | User-supplied strings are never interpolated directly into system prompts. They are inserted into structured `user` turn content with role separation enforced by the API.                           |
+| **CSP headers**              | `Content-Security-Policy` strictly enforces `connect-src 'self'`. The browser never connects directly to Google; all AI calls are proxied through serverless functions where the API key is secured. |
+| **Rate limiting**            | In-memory sliding-window limiter: **30 requests / minute** per IP on all `/api/*` routes (`api/_lib/security.js`).                                                                                   |
+| **Origin check**             | API routes enforce strict same-origin host matching (`matchesHost`). Subdomain spoofing (such as `localhost.evil.com`) and foreign `.vercel.app` domains are rejected with `403 Forbidden`.          |
 
 ---
 
@@ -247,37 +248,37 @@ Tests run with **Node.js built-in test runner** (`node --test`). No Jest, no Moc
 
 ```bash
 npm test
-# or with coverage (excluding test files):
-node --test --experimental-test-coverage --test-coverage-exclude="tests/**"
+# or with coverage:
+npm run test:coverage
 ```
 
 ### Summary
 
-| Suite | Tests | Failures | Line Coverage |
-|---|---|---|---|
-| `tests/engine/money.test.js` | 9 | 0 | 99.4% |
-| `tests/engine/dates.test.js` | 8 | 0 | 99.4% |
-| `tests/engine/catering.test.js` | 5 | 0 | 100.0% |
-| `tests/engine/feasibility.test.js` | 5 | 0 | 100.0% |
-| `tests/engine/patch.test.js` | 10 | 0 | 97.9% |
-| `tests/engine/benchmarks.test.js` | 9 | 0 | 98.2% |
-| `tests/engine/templates.test.js` | 4 | 0 | 100.0% |
-| `tests/engine/baseline.test.js` | 3 | 0 | 97.2% |
-| `tests/engine/ics.test.js` | 4 | 0 | 98.5% |
-| `tests/api/endpoints.test.js` | 8 | 0 | 99.0% |
-| `tests/api/gemini.test.js` | 8 | 0 | 91.3% |
-| `tests/api/security.test.js` | 14 | 0 | 83.1% |
-| `tests/api/cache.test.js` | 6 | 0 | 100.0% |
-| `tests/api/tools.test.js` | 6 | 0 | 100.0% |
-| `tests/ping.test.js` | 2 | 0 | 100.0% |
-| `tests/frontend/router.test.js` | 6 | 0 | 97.7% |
-| `tests/frontend/storage.test.js` | 12 | 0 | 82.6% |
-| `tests/frontend/new-event.test.js` | 5 | 0 | 92.5% |
-| `tests/frontend/dashboard-tabs.test.js` | 13 | 0 | 96.2% |
-| `tests/frontend/assistant-and-modal.test.js` | 6 | 0 | 91.3% |
-| **Total** | **143** | **0** | **94.8% line · 72.0% branch (all source files)** |
+| Suite                                        | Tests   | Failures | Line Coverage                                    |
+| -------------------------------------------- | ------- | -------- | ------------------------------------------------ |
+| `tests/engine/money.test.js`                 | 9       | 0        | 99.4%                                            |
+| `tests/engine/dates.test.js`                 | 8       | 0        | 99.4%                                            |
+| `tests/engine/catering.test.js`              | 5       | 0        | 100.0%                                           |
+| `tests/engine/feasibility.test.js`           | 5       | 0        | 100.0%                                           |
+| `tests/engine/patch.test.js`                 | 11      | 0        | 96.4%                                            |
+| `tests/engine/benchmarks.test.js`            | 9       | 0        | 98.5%                                            |
+| `tests/engine/templates.test.js`             | 4       | 0        | 100.0%                                           |
+| `tests/engine/baseline.test.js`              | 3       | 0        | 97.1%                                            |
+| `tests/engine/ics.test.js`                   | 4       | 0        | 98.5%                                            |
+| `tests/api/endpoints.test.js`                | 8       | 0        | 99.0%                                            |
+| `tests/api/gemini.test.js`                   | 8       | 0        | 91.3%                                            |
+| `tests/api/security.test.js`                 | 14      | 0        | 83.1%                                            |
+| `tests/api/cache.test.js`                    | 6       | 0        | 100.0%                                           |
+| `tests/api/tools.test.js`                    | 6       | 0        | 100.0%                                           |
+| `tests/ping.test.js`                         | 2       | 0        | 100.0%                                           |
+| `tests/frontend/router.test.js`              | 6       | 0        | 97.7%                                            |
+| `tests/frontend/storage.test.js`             | 12      | 0        | 81.8%                                            |
+| `tests/frontend/new-event.test.js`           | 8       | 0        | 95.6%                                            |
+| `tests/frontend/dashboard-tabs.test.js`      | 13      | 0        | 96.2%                                            |
+| `tests/frontend/assistant-and-modal.test.js` | 6       | 0        | 91.6%                                            |
+| **Total**                                    | **147** | **0**    | **96.1% line · 80.8% branch (all source files)** |
 
-> **Coverage Note:** When test runner files are excluded, the test suite achieves **94.8% line coverage** and **72.0% branch coverage** across all application source files (and **96.8% line coverage** across the core planning engine and serverless API modules). Measured directly using Node.js built-in V8 test coverage with zero external test dependencies.
+> **Coverage Note:** The test suite achieves **96.1% line coverage** and **80.8% branch coverage** across all application source files (and **96.8% line coverage** across the core planning engine and serverless API modules). Measured directly using Node.js built-in V8 test coverage with zero external test dependencies.
 
 ---
 
@@ -312,10 +313,10 @@ Open [http://localhost:3000](http://localhost:3000).
 
 ### Environment Variables
 
-| Variable | Required | Description |
-|---|---|---|
-| `GEMINI_API_KEY` | ✅ Yes | Google AI Studio API key |
-| `GEMINI_MODEL` | Optional | Model ID. Defaults to `gemini-2.5-flash-lite` |
+| Variable         | Required | Description                                   |
+| ---------------- | -------- | --------------------------------------------- |
+| `GEMINI_API_KEY` | ✅ Yes   | Google AI Studio API key                      |
+| `GEMINI_MODEL`   | Optional | Model ID. Defaults to `gemini-2.5-flash-lite` |
 
 ---
 
@@ -339,16 +340,17 @@ No build command needed. Output directory: `web/`.
 
 ## ⚠️ Limitations & What I'd Do Next
 
-| Limitation | Notes |
-|---|---|
-| **In-memory rate limiter** | Resets on each serverless function cold-start; does not share state across Vercel instances. A production deployment would use Redis (e.g., Vercel KV). |
-| **Static benchmarks** | Prices are approximate ~2024 rates. A real product would integrate live vendor APIs or a regularly updated database. |
-| **No user accounts** | Plans live in `localStorage`. There is no server-side database; user data is kept private in the browser with full JSON backup/restore. |
-| **No real vendor marketplace** | Vendor suggestions are illustrative planning targets with outreach scripts. A production version would integrate direct booking APIs. |
-| **Static exchange rates** | Multi-currency (INR, USD, EUR, GBP, AED) supported using fixed conversions rather than real-time forex feeds. |
-| **English/Hindi/Hinglish focus** | Regional languages (Tamil, Telugu, Bengali, Marathi) are planned for future releases. |
+| Limitation                       | Notes                                                                                                                                                   |
+| -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **In-memory rate limiter**       | Resets on each serverless function cold-start; does not share state across Vercel instances. A production deployment would use Redis (e.g., Vercel KV). |
+| **Static benchmarks**            | Prices are approximate ~2024 rates. A real product would integrate live vendor APIs or a regularly updated database.                                    |
+| **No user accounts**             | Plans live in `localStorage`. There is no server-side database; user data is kept private in the browser with full JSON backup/restore.                 |
+| **No real vendor marketplace**   | Vendor suggestions are illustrative planning targets with outreach scripts. A production version would integrate direct booking APIs.                   |
+| **Static exchange rates**        | Multi-currency (INR, USD, EUR, GBP, AED) supported using fixed conversions rather than real-time forex feeds.                                           |
+| **English/Hindi/Hinglish focus** | Regional languages (Tamil, Telugu, Bengali, Marathi) are planned for future releases.                                                                   |
 
 **What I'd build next:**
+
 - Vercel KV for persistent rate limiting and plan storage
 - User accounts with plan history and sharing links
 - Live vendor price feeds via scraping or partnerships

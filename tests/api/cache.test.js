@@ -4,10 +4,7 @@
 
 import { describe, it, beforeEach } from "node:test";
 import assert from "node:assert/strict";
-import {
-  ResponseCache,
-  generateCacheKey
-} from "../../api/_lib/cache.js";
+import { ResponseCache, generateCacheKey } from "../../api/_lib/cache.js";
 
 describe("Server Response Cache (LRU + TTL)", () => {
   let cache;

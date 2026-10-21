@@ -58,8 +58,13 @@ describe("Frontend Router", () => {
       const listeners = [];
       globalThis.window = {
         location: {
-          get hash() { return hash; },
-          set hash(v) { hash = v; listeners.forEach((l) => l()); }
+          get hash() {
+            return hash;
+          },
+          set hash(v) {
+            hash = v;
+            listeners.forEach((l) => l());
+          }
         },
         addEventListener(event, fn) {
           if (event === "hashchange") listeners.push(fn);

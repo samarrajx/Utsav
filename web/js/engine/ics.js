@@ -111,7 +111,8 @@ export function buildICS(event) {
     const linkedTasks = tasks.filter((t) => t.milestoneId === m.id);
     let desc = `Milestone: ${m.title}`;
     if (linkedTasks.length > 0) {
-      desc += "\\nTasks:\\n" + linkedTasks.map((t) => `- [${t.done ? "X" : " "}] ${t.title}`).join("\\n");
+      desc +=
+        "\\nTasks:\\n" + linkedTasks.map((t) => `- [${t.done ? "X" : " "}] ${t.title}`).join("\\n");
     }
 
     lines.push("BEGIN:VEVENT");

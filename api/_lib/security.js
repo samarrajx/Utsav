@@ -11,6 +11,8 @@
  * 7. Generic error handling (no stack traces / secrets leaked)
  */
 
+import { HttpError } from "./gemini.js";
+
 export const MAX_BODY_BYTES = 32 * 1024; // 32 KB cap
 export const RATE_LIMIT_WINDOW_MS = 60 * 1000; // 1 minute
 export const DEFAULT_MAX_REQUESTS_PER_WINDOW = 30; // 30 req / min
@@ -72,7 +74,10 @@ function matchesHost(urlObj, hostHeader) {
 
   // 3. Localhost loopback in local dev/testing
   const reqHostname = reqHost.split(":")[0];
-  if (isLocalHostname(urlObj.hostname) && (isLocalHostname(reqHostname) || reqHostname === "test")) {
+  if (
+    isLocalHostname(urlObj.hostname) &&
+    (isLocalHostname(reqHostname) || reqHostname === "test")
+  ) {
     return true;
   }
 
@@ -148,9 +153,7 @@ export async function parseJsonBody(req) {
   if (req.body && typeof req.body === "object") {
     const raw = JSON.stringify(req.body);
     if (Buffer.byteLength(raw, "utf8") > MAX_BODY_BYTES) {
-      const err = new Error("Payload Too Large");
-      err.status = 413;
-      throw err;
+      throw new HttpError("Payload Too Large", 413);
     }
     return req.body;
   }
@@ -158,24 +161,18 @@ export async function parseJsonBody(req) {
   // Check content-length header if available
   const contentLength = parseInt(req.headers?.["content-length"] || "0", 10);
   if (contentLength > MAX_BODY_BYTES) {
-    const err = new Error("Payload Too Large");
-    err.status = 413;
-    throw err;
+    throw new HttpError("Payload Too Large", 413);
   }
 
   // If body is already a string
   if (typeof req.body === "string") {
     if (Buffer.byteLength(req.body, "utf8") > MAX_BODY_BYTES) {
-      const err = new Error("Payload Too Large");
-      err.status = 413;
-      throw err;
+      throw new HttpError("Payload Too Large", 413);
     }
     try {
       return JSON.parse(req.body);
     } catch {
-      const err = new Error("Invalid JSON");
-      err.status = 400;
-      throw err;
+      throw new HttpError("Invalid JSON", 400);
     }
   }
 
@@ -187,10 +184,8 @@ export async function parseJsonBody(req) {
     req.on("data", (chunk) => {
       totalBytes += chunk.length;
       if (totalBytes > MAX_BODY_BYTES) {
-        const err = new Error("Payload Too Large");
-        err.status = 413;
         req.destroy();
-        reject(err);
+        reject(new HttpError("Payload Too Large", 413));
         return;
       }
       raw += chunk;
@@ -204,9 +199,7 @@ export async function parseJsonBody(req) {
       try {
         resolve(JSON.parse(raw));
       } catch {
-        const err = new Error("Invalid JSON payload");
-        err.status = 400;
-        reject(err);
+        reject(new HttpError("Invalid JSON payload", 400));
       }
     });
 
@@ -250,6 +243,48 @@ export function sendResponse(res, status, data, headers = {}) {
   });
 }
 
+function validateRequestSecurity(req, rateLimitMax) {
+  if (req.method !== "POST") {
+    return { status: 405, body: { error: "Method Not Allowed. Only POST is supported." } };
+  }
+
+  const contentType = req.headers?.["content-type"] || "";
+  if (!contentType.includes("application/json")) {
+    return { status: 415, body: { error: "Unsupported Media Type. Expected application/json." } };
+  }
+
+  if (!isOriginAllowed(req)) {
+    return { status: 403, body: { error: "Forbidden. Untrusted request origin." } };
+  }
+
+  const ip = getClientIP(req);
+  if (!checkRateLimit(ip, rateLimitMax)) {
+    return {
+      status: 429,
+      body: { error: "Too Many Requests. Rate limit exceeded. Please try again in 1 minute." },
+      headers: { "Retry-After": "60" }
+    };
+  }
+
+  return null;
+}
+
+function handleApiError(res, req, err) {
+  const status = err.status || 500;
+  console.error(`[API_ERROR] ${req.url || "handler"} code=${status} name=${err.name || "Error"}`);
+
+  if (status === 502) {
+    return sendResponse(res, 502, {
+      error: "Upstream model returned invalid or off-schema response."
+    });
+  }
+  if (status === 504) {
+    return sendResponse(res, 504, { error: "Upstream request timed out." });
+  }
+
+  return sendResponse(res, status, { error: err.message || "An unexpected error occurred." });
+}
+
 /**
  * Wrapper for API handlers enforcing security checks and error handling
  *
@@ -260,35 +295,16 @@ export function sendResponse(res, status, data, headers = {}) {
  * @param {Function} options.handler - Handler receiving validated data
  * @param {number} [options.rateLimitMax=30] - Max requests per minute
  */
-export async function secureApiHandler(req, res, { schema, handler, rateLimitMax = DEFAULT_MAX_REQUESTS_PER_WINDOW }) {
-  // 1. Method check: POST only
-  if (req.method !== "POST") {
-    return sendResponse(res, 405, { error: "Method Not Allowed. Only POST is supported." });
+export async function secureApiHandler(
+  req,
+  res,
+  { schema, handler, rateLimitMax = DEFAULT_MAX_REQUESTS_PER_WINDOW }
+) {
+  const securityError = validateRequestSecurity(req, rateLimitMax);
+  if (securityError) {
+    return sendResponse(res, securityError.status, securityError.body, securityError.headers);
   }
 
-  // 2. Content-Type check
-  const contentType = req.headers?.["content-type"] || "";
-  if (!contentType.includes("application/json")) {
-    return sendResponse(res, 415, { error: "Unsupported Media Type. Expected application/json." });
-  }
-
-  // 3. Origin check
-  if (!isOriginAllowed(req)) {
-    return sendResponse(res, 403, { error: "Forbidden. Untrusted request origin." });
-  }
-
-  // 4. Rate limit check
-  const ip = getClientIP(req);
-  if (!checkRateLimit(ip, rateLimitMax)) {
-    return sendResponse(
-      res,
-      429,
-      { error: "Too Many Requests. Rate limit exceeded. Please try again in 1 minute." },
-      { "Retry-After": "60" }
-    );
-  }
-
-  // 5. Parse 32 KB body & validate Zod input schema
   let body = {};
   try {
     body = await parseJsonBody(req);
@@ -312,22 +328,10 @@ export async function secureApiHandler(req, res, { schema, handler, rateLimitMax
     validatedData = parseResult.data;
   }
 
-  // 6. Execute business handler
   try {
     const result = await handler(validatedData, { req, res });
     return sendResponse(res, 200, result);
   } catch (err) {
-    const status = err.status || 500;
-    // Log error code only, never user text or secrets
-    console.error(`[API_ERROR] ${req.url || "handler"} code=${status} name=${err.name || "Error"}`);
-
-    if (status === 502) {
-      return sendResponse(res, 502, { error: "Upstream model returned invalid or off-schema response." });
-    }
-    if (status === 504) {
-      return sendResponse(res, 504, { error: "Upstream request timed out." });
-    }
-
-    return sendResponse(res, status, { error: err.message || "An unexpected error occurred." });
+    return handleApiError(res, req, err);
   }
 }

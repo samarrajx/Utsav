@@ -5,6 +5,50 @@
  * All text is set via textContent or TextNodes.
  */
 
+const BOOLEAN_PROPS = new Set(["disabled", "checked", "selected"]);
+
+function applyBooleanProp(element, key, val) {
+  if (val) {
+    element.setAttribute(key, "");
+    element[key] = true;
+  } else {
+    element.removeAttribute(key);
+    element[key] = false;
+  }
+}
+
+function applyProp(element, key, val) {
+  if (val === undefined || val === null) return;
+
+  if (key.startsWith("on") && typeof val === "function") {
+    element.addEventListener(key.substring(2).toLowerCase(), val);
+  } else if (key === "className" || key === "class") {
+    element.className = String(val);
+  } else if (key === "dataset" && typeof val === "object") {
+    Object.entries(val).forEach(([dKey, dVal]) => {
+      element.dataset[dKey] = String(dVal);
+    });
+  } else if (key === "style" && typeof val === "object") {
+    Object.assign(element.style, val);
+  } else if (BOOLEAN_PROPS.has(key)) {
+    applyBooleanProp(element, key, val);
+  } else {
+    element.setAttribute(key, String(val));
+  }
+}
+
+function appendChildren(element, children) {
+  const childArray = Array.isArray(children) ? children : [children];
+  for (const child of childArray) {
+    if (child === undefined || child === null || child === false) continue;
+    if (typeof child === "string" || typeof child === "number") {
+      element.appendChild(document.createTextNode(String(child)));
+    } else if (child instanceof Node) {
+      element.appendChild(child);
+    }
+  }
+}
+
 /**
  * Create a DOM element with attributes, event listeners, and children safely.
  *
@@ -15,44 +59,10 @@
  */
 export function el(tag, props = {}, children = []) {
   const element = document.createElement(tag);
-
   for (const [key, val] of Object.entries(props)) {
-    if (val === undefined || val === null) continue;
-
-    if (key.startsWith("on") && typeof val === "function") {
-      const eventName = key.substring(2).toLowerCase();
-      element.addEventListener(eventName, val);
-    } else if (key === "className" || key === "class") {
-      element.className = String(val);
-    } else if (key === "dataset" && typeof val === "object") {
-      for (const [dKey, dVal] of Object.entries(val)) {
-        element.dataset[dKey] = String(dVal);
-      }
-    } else if (key === "style" && typeof val === "object") {
-      Object.assign(element.style, val);
-    } else if (key === "disabled" || key === "checked" || key === "selected") {
-      if (val) {
-        element.setAttribute(key, "");
-        element[key] = true;
-      } else {
-        element.removeAttribute(key);
-        element[key] = false;
-      }
-    } else {
-      element.setAttribute(key, String(val));
-    }
+    applyProp(element, key, val);
   }
-
-  const childArray = Array.isArray(children) ? children : [children];
-  for (const child of childArray) {
-    if (child === undefined || child === null || child === false) continue;
-    if (typeof child === "string" || typeof child === "number") {
-      element.appendChild(document.createTextNode(String(child)));
-    } else if (child instanceof Node) {
-      element.appendChild(child);
-    }
-  }
-
+  appendChildren(element, children);
   return element;
 }
 

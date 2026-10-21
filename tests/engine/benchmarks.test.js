@@ -28,7 +28,7 @@ describe("Engine: benchmarks.js", () => {
 
       // Cross conversion USD to EUR: 100 USD = 8500 INR; 8500 / 92 ~ 92.39 EUR
       const eur = convertCurrency(100, "USD", "EUR");
-      assert.ok(Math.abs(eur - (8500 / 92)) < 0.001);
+      assert.ok(Math.abs(eur - 8500 / 92) < 0.001);
     });
   });
 

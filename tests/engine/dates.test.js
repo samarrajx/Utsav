@@ -70,9 +70,9 @@ describe("Engine: dates.js", () => {
 
       const milestoneTemplates = [
         { id: "m1", title: "Book venue", weeksBefore: 24, tasks: ["Shortlist", "Visit"] }, // 24 weeks before ~ Feb 2026 (OVERDUE)
-        { id: "m2", title: "Lock caterer", weeksBefore: 16, tasks: ["Tasting"] },          // 16 weeks before ~ April 2026 (OVERDUE)
-        { id: "m3", title: "Send invites", weeksBefore: 4, tasks: ["Address list"] },       // 4 weeks before ~ July 2026 (FUTURE)
-        { id: "m4", title: "Event day", weeksBefore: 0, tasks: ["Celebrate"] }              // 0 weeks before ~ Aug 2026 (FUTURE)
+        { id: "m2", title: "Lock caterer", weeksBefore: 16, tasks: ["Tasting"] }, // 16 weeks before ~ April 2026 (OVERDUE)
+        { id: "m3", title: "Send invites", weeksBefore: 4, tasks: ["Address list"] }, // 4 weeks before ~ July 2026 (FUTURE)
+        { id: "m4", title: "Event day", weeksBefore: 0, tasks: ["Celebrate"] } // 0 weeks before ~ Aug 2026 (FUTURE)
       ];
 
       const scheduled = scheduleMilestones(eventDate, milestoneTemplates, mockNow);

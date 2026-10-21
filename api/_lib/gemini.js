@@ -33,6 +33,15 @@ export function cleanJsonText(raw) {
   return text.trim();
 }
 
+const TRANSIENT_STATUSES = new Set([500, 503, 429]);
+const TRANSIENT_KEYWORDS = [
+  "econnreset",
+  "etimedout",
+  "fetch failed",
+  "network",
+  "resource exhausted"
+];
+
 /**
  * Check if an error represents a transient network/service failure eligible for 1 retry
  * @param {any} err
@@ -40,18 +49,27 @@ export function cleanJsonText(raw) {
  */
 export function isTransientError(err) {
   if (!err) return false;
-  const status = err.status || err.statusCode || (err.response?.status);
-  if (status === 503 || status === 429 || status === 500) {
-    return true;
-  }
+  const status = err.status || err.statusCode || err.response?.status;
+  if (TRANSIENT_STATUSES.has(status)) return true;
   const msg = (err.message || "").toLowerCase();
-  return (
-    msg.includes("econnreset") ||
-    msg.includes("etimedout") ||
-    msg.includes("fetch failed") ||
-    msg.includes("network") ||
-    msg.includes("resource exhausted")
-  );
+  return TRANSIENT_KEYWORDS.some((kw) => msg.includes(kw));
+}
+
+/**
+ * Custom HTTP error holding an HTTP status code and optional details
+ */
+export class HttpError extends Error {
+  /**
+   * @param {string} message
+   * @param {number} [status]
+   * @param {any} [details]
+   */
+  constructor(message, status = 500, details = undefined) {
+    super(message);
+    this.name = "HttpError";
+    this.status = status;
+    this.details = details;
+  }
 }
 
 /**
@@ -63,6 +81,7 @@ export function isTransientError(err) {
  * @param {string} [options.prompt] - Action instruction for the model
  * @param {import('zod').ZodSchema} [options.responseSchema] - Optional Zod schema to validate
  * @param {number} [options.timeoutMs=25000]
+ * @param {number} [options.maxOutputTokens]
  * @returns {Promise<any>}
  */
 export async function callGeminiStructured({
@@ -94,9 +113,7 @@ CRITICAL SECURITY DIRECTIVE:
 
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) {
-      const err = new Error("GEMINI_API_KEY environment variable is not configured");
-      err.status = 500;
-      throw err;
+      throw new HttpError("GEMINI_API_KEY environment variable is not configured", 500);
     }
 
     const modelName = process.env.GEMINI_MODEL || DEFAULT_GEMINI_MODEL;
@@ -115,9 +132,7 @@ CRITICAL SECURITY DIRECTIVE:
 
     const timeoutPromise = new Promise((_, reject) => {
       const timer = setTimeout(() => {
-        const err = new Error(`Gemini call timed out after ${timeoutMs}ms`);
-        err.status = 504;
-        reject(err);
+        reject(new HttpError(`Gemini call timed out after ${timeoutMs}ms`, 504));
       }, timeoutMs);
       // Ensure timer does not keep Node process alive
       if (timer.unref) timer.unref();
@@ -153,8 +168,7 @@ CRITICAL SECURITY DIRECTIVE:
   try {
     parsedObject = typeof rawJsonString === "string" ? JSON.parse(rawJsonString) : rawJsonString;
   } catch (parseErr) {
-    const err = new Error("Failed to parse Gemini output as JSON");
-    err.status = 502;
+    const err = new HttpError("Failed to parse Gemini output as JSON", 502);
     err.cause = parseErr;
     throw err;
   }
@@ -163,10 +177,7 @@ CRITICAL SECURITY DIRECTIVE:
   if (responseSchema) {
     const validation = responseSchema.safeParse(parsedObject);
     if (!validation.success) {
-      const err = new Error("Gemini output failed schema validation");
-      err.status = 502;
-      err.details = validation.error.errors;
-      throw err;
+      throw new HttpError("Gemini output failed schema validation", 502, validation.error.errors);
     }
     return validation.data;
   }

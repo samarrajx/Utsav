@@ -42,7 +42,9 @@ describe("API Endpoints Integration", () => {
       assert.equal(res.statusCode, 200);
       assert.equal(res.data.ready, true);
       assert.ok(res.data.feasibilityPreview);
-      assert.ok(["comfortable", "tight", "short", "unrealistic"].includes(res.data.feasibilityPreview.band));
+      assert.ok(
+        ["comfortable", "tight", "short", "unrealistic"].includes(res.data.feasibilityPreview.band)
+      );
     });
 
     it("should return ready: false with targeted questions when context is incomplete", async () => {
@@ -282,7 +284,8 @@ describe("API Endpoints Integration", () => {
     it("should answer chat and provide allowlisted patch", async () => {
       setGeminiMock(async () => {
         return JSON.stringify({
-          reply: "I have reallocated 5% from venue to photography to help book a candid photographer.",
+          reply:
+            "I have reallocated 5% from venue to photography to help book a candid photographer.",
           patch: {
             op: "set_category_weight",
             categoryId: "photography",

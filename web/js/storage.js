@@ -17,9 +17,9 @@ export const STORAGE_KEYS = {
 export const CURRENT_SCHEMA_VERSION = 1;
 
 export const DEFAULT_SETTINGS = {
-  language: "en",       // en | hi | hinglish
-  countryCode: "IN",    // IN | US | GB | AE | DE
-  currency: "INR"       // INR | USD | EUR | GBP | AED
+  language: "en", // en | hi | hinglish
+  countryCode: "IN", // IN | US | GB | AE | DE
+  currency: "INR" // INR | USD | EUR | GBP | AED
 };
 
 // Memory fallback store if localStorage is disabled or throws
@@ -76,7 +76,9 @@ export function rawSet(key, value) {
   } catch (err) {
     // Fallback to memory on QuotaExceededError or security block
     memoryStore[key] = value;
-    console.warn(`[Storage Warning] Writing to localStorage failed: ${err.message}. Using memory fallback.`);
+    console.warn(
+      `[Storage Warning] Writing to localStorage failed: ${err.message}. Using memory fallback.`
+    );
     return false;
   }
 }

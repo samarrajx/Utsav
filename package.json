@@ -5,6 +5,9 @@
   "type": "module",
   "scripts": {
     "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
     "test": "node --test",
     "test:coverage": "node --test --experimental-test-coverage",
     "audit": "npm audit --audit-level=high"
@@ -24,6 +27,8 @@
   "devDependencies": {
     "@eslint/js": "^9.20.0",
     "eslint": "^9.20.0",
-    "globals": "^15.15.0"
+    "globals": "^15.15.0",
+    "prettier": "^3.9.10",
+    "typescript": "^7.0.2"
   }
 }

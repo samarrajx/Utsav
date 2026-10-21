@@ -77,7 +77,7 @@ export async function postApi(endpoint, payload, timeoutMs = API_TIMEOUT_MS, opt
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Accept": "application/json"
+        Accept: "application/json"
       },
       body: JSON.stringify(payload),
       signal: controller.signal
@@ -111,7 +111,7 @@ export async function postApi(endpoint, payload, timeoutMs = API_TIMEOUT_MS, opt
     return {
       ok: false,
       status: isTimeout ? 504 : 0,
-      error: isTimeout ? "Request timed out" : (err.message || "Network error")
+      error: isTimeout ? "Request timed out" : err.message || "Network error"
     };
   }
 }
@@ -133,10 +133,15 @@ export async function fetchIntake(params, options = {}) {
  * @returns {Promise<{ ok: boolean, data?: any, error?: string }>}
  */
 export async function fetchPlanSection(section, planParams, options = {}) {
-  return postApi(`/api/plan?section=${encodeURIComponent(section)}`, {
-    ...planParams,
-    section
-  }, API_TIMEOUT_MS, options);
+  return postApi(
+    `/api/plan?section=${encodeURIComponent(section)}`,
+    {
+      ...planParams,
+      section
+    },
+    API_TIMEOUT_MS,
+    options
+  );
 }
 
 /**

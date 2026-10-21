@@ -30,7 +30,10 @@ describe("API Tool Loop & Grounding Tools", () => {
   it("should execute allocate_budget tool", () => {
     const allocated = executeEngineTool("allocate_budget", {
       totalBudget: 10000,
-      categories: [{ id: "a", weight: 50 }, { id: "b", weight: 50 }]
+      categories: [
+        { id: "a", weight: 50 },
+        { id: "b", weight: 50 }
+      ]
     });
     assert.equal(allocated[0].planned + allocated[1].planned, 10000);
   });

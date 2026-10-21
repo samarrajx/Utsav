@@ -35,7 +35,7 @@ export function allocateBudget(totalBudget, categories) {
   if (totalWeight <= 0) {
     // Equal distribution if all weights are zero
     const equalShare = Math.floor(totalBudget / categories.length);
-    const remainder = totalBudget - (equalShare * categories.length);
+    const remainder = totalBudget - equalShare * categories.length;
     return categories.map((cat, idx) => ({
       ...cat,
       planned: equalShare + (idx < remainder ? 1 : 0)

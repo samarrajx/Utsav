@@ -25,10 +25,26 @@ export const TEMPLATES = {
       { id: "entertainment", name: "DJ, Sound & Entertainment", weight: 5 }
     ],
     subEvents: [
-      { id: "mehendi_haldi", title: "Haldi & Mehendi", desc: "Vibrant daytime rituals with floral decor and folk music" },
-      { id: "sangeet", title: "Sangeet & Cocktails", desc: "Evening dance performances, DJ, and family celebrations" },
-      { id: "wedding_ceremony", title: "Main Wedding Ceremony", desc: "Traditional rituals, sacred vows, and auspicious blessings" },
-      { id: "reception", title: "Grand Reception", desc: "Formal feast, speeches, and welcoming guests" }
+      {
+        id: "mehendi_haldi",
+        title: "Haldi & Mehendi",
+        desc: "Vibrant daytime rituals with floral decor and folk music"
+      },
+      {
+        id: "sangeet",
+        title: "Sangeet & Cocktails",
+        desc: "Evening dance performances, DJ, and family celebrations"
+      },
+      {
+        id: "wedding_ceremony",
+        title: "Main Wedding Ceremony",
+        desc: "Traditional rituals, sacred vows, and auspicious blessings"
+      },
+      {
+        id: "reception",
+        title: "Grand Reception",
+        desc: "Formal feast, speeches, and welcoming guests"
+      }
     ],
     vendorCategories: [
       { id: "venue", name: "Venue", bookWeeksBefore: 24, icon: "building" },
@@ -123,17 +139,38 @@ export const TEMPLATES = {
       { id: "photography", name: "Photography & Keepsakes", weight: 10 }
     ],
     subEvents: [
-      { id: "welcome_drinks", title: "Welcome Drinks & Mingling", desc: "Arrivals, polaroid guestbook, and appetizers" },
-      { id: "games_activity", title: "Games & Entertainment", desc: "Interactive games, trivia, or live performer" },
-      { id: "cake_cutting", title: "Cake Cutting Ceremony", desc: "Celebratory cake cutting, toasts, and group photos" },
-      { id: "dinner_party", title: "Dinner & Dancing", desc: "Main meal, dessert station, and open dance floor" }
+      {
+        id: "welcome_drinks",
+        title: "Welcome Drinks & Mingling",
+        desc: "Arrivals, polaroid guestbook, and appetizers"
+      },
+      {
+        id: "games_activity",
+        title: "Games & Entertainment",
+        desc: "Interactive games, trivia, or live performer"
+      },
+      {
+        id: "cake_cutting",
+        title: "Cake Cutting Ceremony",
+        desc: "Celebratory cake cutting, toasts, and group photos"
+      },
+      {
+        id: "dinner_party",
+        title: "Dinner & Dancing",
+        desc: "Main meal, dessert station, and open dance floor"
+      }
     ],
     vendorCategories: [
       { id: "venue", name: "Party Venue / Hall", bookWeeksBefore: 8, icon: "building" },
       { id: "catering", name: "Catering & Bartending", bookWeeksBefore: 6, icon: "utensils" },
       { id: "baker", name: "Custom Cake Designer", bookWeeksBefore: 4, icon: "cake" },
       { id: "decor", name: "Balloons & Backdrop Decor", bookWeeksBefore: 4, icon: "sparkles" },
-      { id: "entertainment", name: "DJ / Performer / Games Host", bookWeeksBefore: 4, icon: "music" },
+      {
+        id: "entertainment",
+        name: "DJ / Performer / Games Host",
+        bookWeeksBefore: 4,
+        icon: "music"
+      },
       { id: "photography", name: "Party Photographer", bookWeeksBefore: 3, icon: "camera" }
     ],
     milestones: [
@@ -195,15 +232,37 @@ export const TEMPLATES = {
       { id: "marketing", name: "Outreach & Volunteer Kits", weight: 5 }
     ],
     subEvents: [
-      { id: "inauguration", title: "Opening Ceremony", desc: "Welcome address, lamp lighting, and keynote remarks" },
-      { id: "performances", title: "Cultural & Stage Program", desc: "Community performances, talks, and awards" },
-      { id: "community_feast", title: "Community Feast / Food Fest", desc: "Shared dining, food stalls, and community mingling" }
+      {
+        id: "inauguration",
+        title: "Opening Ceremony",
+        desc: "Welcome address, lamp lighting, and keynote remarks"
+      },
+      {
+        id: "performances",
+        title: "Cultural & Stage Program",
+        desc: "Community performances, talks, and awards"
+      },
+      {
+        id: "community_feast",
+        title: "Community Feast / Food Fest",
+        desc: "Shared dining, food stalls, and community mingling"
+      }
     ],
     vendorCategories: [
       { id: "venue", name: "Ground / Hall Authorities", bookWeeksBefore: 12, icon: "building" },
       { id: "av_stage", name: "AV, Stage & PA System", bookWeeksBefore: 8, icon: "mic" },
-      { id: "catering", name: "Community Food Vendor / Caterer", bookWeeksBefore: 8, icon: "utensils" },
-      { id: "tents_furniture", name: "Tents, Chairs & Generators", bookWeeksBefore: 6, icon: "tent" },
+      {
+        id: "catering",
+        name: "Community Food Vendor / Caterer",
+        bookWeeksBefore: 8,
+        icon: "utensils"
+      },
+      {
+        id: "tents_furniture",
+        name: "Tents, Chairs & Generators",
+        bookWeeksBefore: 6,
+        icon: "tent"
+      },
       { id: "security", name: "Security & First Aid Services", bookWeeksBefore: 4, icon: "shield" },
       { id: "printing", name: "Banners & Wayfinding Signs", bookWeeksBefore: 3, icon: "printer" }
     ],

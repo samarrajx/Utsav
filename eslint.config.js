@@ -4,11 +4,7 @@ import globals from "globals";
 export default [
   js.configs.recommended,
   {
-    ignores: [
-      "node_modules/**",
-      ".vercel/**",
-      "coverage/**"
-    ]
+    ignores: ["node_modules/**", ".vercel/**", "coverage/**"]
   },
   {
     files: ["**/*.js"],
@@ -21,9 +17,19 @@ export default [
       }
     },
     rules: {
-      "no-unused-vars": ["error", { "argsIgnorePattern": "^_" }],
-      "no-console": ["warn", { "allow": ["warn", "error", "info"] }],
-      "no-control-regex": "off"
+      "no-unused-vars": ["error", { argsIgnorePattern: "^_" }],
+      "no-console": ["warn", { allow: ["warn", "error", "info"] }],
+      "no-control-regex": "off",
+      "prefer-const": "error",
+      eqeqeq: ["error", "always"],
+      complexity: ["error", 12],
+      "max-lines-per-function": ["error", { max: 80, skipBlankLines: true, skipComments: true }]
+    }
+  },
+  {
+    files: ["tests/**/*.js"],
+    rules: {
+      "max-lines-per-function": "off"
     }
   }
 ];

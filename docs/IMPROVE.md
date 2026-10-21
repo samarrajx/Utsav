@@ -26,6 +26,7 @@ Set `maxOutputTokens` per endpoint (start values: intake 512, plan core 2048, ve
 Small in-memory LRU (max 100 entries, 10-minute TTL) for `intake` and `plan` sections, keyed by SHA-256 of normalised input + language + model. Do not cache `assist`, `critique` or `vendor-message`. Add an `X-Cache: HIT|MISS` header. Add tests for hit, miss, expiry and eviction. Document that the cache is per serverless instance.
 
 **A4. Client request handling.**
+
 - Cancel in-flight AI requests with `AbortController` when the user navigates away, restarts the flow or sends a new assistant message.
 - Debounce `saveEvent` writes (300 ms trailing) and flush on `pagehide` and `visibilitychange` so no data is lost.
 

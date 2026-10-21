@@ -1,6 +1,11 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { buildICS, escapeICalText, formatICalDate, formatICalDateTime } from "../../web/js/engine/ics.js";
+import {
+  buildICS,
+  escapeICalText,
+  formatICalDate,
+  formatICalDateTime
+} from "../../web/js/engine/ics.js";
 
 describe("Engine: ics.js", () => {
   it("should escape special characters in iCal text according to RFC 5545", () => {

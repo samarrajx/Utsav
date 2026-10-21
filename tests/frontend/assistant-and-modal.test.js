@@ -65,8 +65,12 @@ describe("Phase 7 Integration: AI Assistant, Patches, Undo & Outreach Modal", ()
       });
 
       const widget = renderAssistantWidget(testEvent, {
-        onUpdate: (evt) => { updatedEvent = evt; },
-        announce: (msg) => { announcedMessage = msg; }
+        onUpdate: (evt) => {
+          updatedEvent = evt;
+        },
+        announce: (msg) => {
+          announcedMessage = msg;
+        }
       });
 
       // Submit a message via input form
@@ -82,7 +86,10 @@ describe("Phase 7 Integration: AI Assistant, Patches, Undo & Outreach Modal", ()
       // Patch card should now be rendered in the widget
       const patchCard = widget.querySelector(".patch-diff-card");
       assert.ok(patchCard, "Patch diff card should be visible");
-      assert.ok(patchCard.textContent.includes("Updated weight") || patchCard.textContent.includes("Catering"));
+      assert.ok(
+        patchCard.textContent.includes("Updated weight") ||
+          patchCard.textContent.includes("Catering")
+      );
 
       // Click "Accept & Apply"
       const acceptBtn = patchCard.querySelector(".btn-accept-patch");
@@ -122,7 +129,11 @@ describe("Phase 7 Integration: AI Assistant, Patches, Undo & Outreach Modal", ()
       await new Promise((resolve) => setTimeout(resolve, 10));
 
       // Offline handler should produce a suggestion and patch safely
-      assert.ok(widget.textContent.includes("Dhol") || widget.textContent.includes("entry") || widget.textContent.includes("celebration"));
+      assert.ok(
+        widget.textContent.includes("Dhol") ||
+          widget.textContent.includes("entry") ||
+          widget.textContent.includes("celebration")
+      );
     });
   });
 
@@ -143,7 +154,9 @@ describe("Phase 7 Integration: AI Assistant, Patches, Undo & Outreach Modal", ()
       const modalBackdrop = openVendorOutreachModal({
         vendor,
         event: testEvent,
-        announce: (msg) => { announcedMessage = msg; }
+        announce: (msg) => {
+          announcedMessage = msg;
+        }
       });
 
       assert.ok(modalBackdrop);
@@ -182,13 +195,17 @@ describe("Phase 7 Integration: AI Assistant, Patches, Undo & Outreach Modal", ()
 
     it("should handle offline draft generation and escape key closure", async () => {
       let closed = false;
-      globalThis.fetch = async () => { throw new Error("Offline"); };
+      globalThis.fetch = async () => {
+        throw new Error("Offline");
+      };
 
       const vendor = testEvent.vendors[0];
       const modalBackdrop = openVendorOutreachModal({
         vendor,
         event: testEvent,
-        onClose: () => { closed = true; }
+        onClose: () => {
+          closed = true;
+        }
       });
 
       await new Promise((resolve) => setTimeout(resolve, 10));
@@ -227,9 +244,13 @@ describe("Phase 7 Integration: AI Assistant, Patches, Undo & Outreach Modal", ()
       });
 
       const overviewView = renderOverviewTab(testEvent, {
-        onUpdate: (evt) => { updatedEvent = evt; },
+        onUpdate: (evt) => {
+          updatedEvent = evt;
+        },
         onNavigateTab: () => {},
-        announce: (msg) => { announcedMessage = msg; }
+        announce: (msg) => {
+          announcedMessage = msg;
+        }
       });
 
       const reauditBtn = overviewView.querySelector(".btn-reaudit-critic");
@@ -241,7 +262,10 @@ describe("Phase 7 Integration: AI Assistant, Patches, Undo & Outreach Modal", ()
 
       assert.ok(updatedEvent);
       assert.equal(testEvent.critique.risks.length, 1);
-      assert.equal(testEvent.critique.risks[0].title, "Peak wedding season booking crush in Jaipur");
+      assert.equal(
+        testEvent.critique.risks[0].title,
+        "Peak wedding season booking crush in Jaipur"
+      );
       assert.ok(announcedMessage.includes("AI Critic audit complete"));
     });
   });

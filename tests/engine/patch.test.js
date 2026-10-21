@@ -30,7 +30,13 @@ describe("Engine: patch.js", () => {
     ],
     vendors: [],
     ideas: [
-      { id: "i1", section: "decor", title: "Floral chandelier", whyItFits: "Stunning visual", saved: true }
+      {
+        id: "i1",
+        section: "decor",
+        title: "Floral chandelier",
+        whyItFits: "Stunning visual",
+        saved: true
+      }
     ]
   });
 
@@ -133,6 +139,23 @@ describe("Engine: patch.js", () => {
       const linkedTask = moved.tasks.find((t) => t.milestoneId === "m1");
       assert.equal(linkedTask.due, "2026-06-15");
     });
+
+    it("should add a new milestone to the plan", () => {
+      const plan = getMockPlan();
+      const initialCount = plan.milestones.length;
+      const { plan: withMs, diff } = applyPatch(plan, {
+        op: "add_milestone",
+        title: "Send Save the Dates",
+        dueDate: "2026-05-15",
+        weeksBefore: 27
+      });
+
+      assert.equal(withMs.milestones.length, initialCount + 1);
+      const added = withMs.milestones.find((m) => m.title === "Send Save the Dates");
+      assert.ok(added);
+      assert.equal(added.dueDate, "2026-05-15");
+      assert.ok(diff.summary.includes("Send Save the Dates"));
+    });
   });
 
   describe("Idea & Vendor operations", () => {
@@ -214,7 +237,11 @@ describe("Engine: patch.js", () => {
 
       // Move nonexistent milestone
       assert.throws(() => {
-        applyPatch(plan, { op: "move_milestone", milestoneId: "ghost_ms", newDueDate: "2026-12-01" });
+        applyPatch(plan, {
+          op: "move_milestone",
+          milestoneId: "ghost_ms",
+          newDueDate: "2026-12-01"
+        });
       }, /not found/);
 
       // Missing milestone title in add_milestone

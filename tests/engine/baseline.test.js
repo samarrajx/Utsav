@@ -7,17 +7,20 @@ describe("Engine: baseline.js", () => {
   it("should generate a complete, valid baseline wedding plan conforming to Section 4 schema", () => {
     const mockNow = () => new Date(Date.UTC(2026, 0, 1)); // 2026-01-01
 
-    const plan = generateBaselinePlan({
-      type: "wedding",
-      title: "Priya & Kabir's Wedding",
-      date: "2026-11-25",
-      city: "Jaipur",
-      countryCode: "IN",
-      currency: "INR",
-      budget: 1500000,
-      guests: 200,
-      language: "en"
-    }, mockNow);
+    const plan = generateBaselinePlan(
+      {
+        type: "wedding",
+        title: "Priya & Kabir's Wedding",
+        date: "2026-11-25",
+        city: "Jaipur",
+        countryCode: "IN",
+        currency: "INR",
+        budget: 1500000,
+        guests: 200,
+        language: "en"
+      },
+      mockNow
+    );
 
     // Schema verification
     assert.equal(plan.schemaVersion, 1);

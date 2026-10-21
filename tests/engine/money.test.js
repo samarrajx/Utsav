@@ -1,6 +1,10 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { allocateBudget, formatCurrency, formatCompactCurrency } from "../../web/js/engine/money.js";
+import {
+  allocateBudget,
+  formatCurrency,
+  formatCompactCurrency
+} from "../../web/js/engine/money.js";
 
 describe("Engine: money.js", () => {
   describe("allocateBudget (Largest-Remainder Hamilton Method)", () => {
@@ -14,18 +18,7 @@ describe("Engine: money.js", () => {
         { id: "entertainment", weight: 5 }
       ];
 
-      const testBudgets = [
-        1000000,
-        1500000,
-        777777,
-        100001,
-        1,
-        2,
-        3,
-        7,
-        9999999,
-        50000
-      ];
+      const testBudgets = [1000000, 1500000, 777777, 100001, 1, 2, 3, 7, 9999999, 50000];
 
       for (const budget of testBudgets) {
         const allocated = allocateBudget(budget, categories);
@@ -47,7 +40,10 @@ describe("Engine: money.js", () => {
     });
 
     it("should handle edge cases: zero budget and empty categories", () => {
-      const categories = [{ id: "a", weight: 50 }, { id: "b", weight: 50 }];
+      const categories = [
+        { id: "a", weight: 50 },
+        { id: "b", weight: 50 }
+      ];
       const zeroAlloc = allocateBudget(0, categories);
       assert.equal(zeroAlloc[0].planned, 0);
       assert.equal(zeroAlloc[1].planned, 0);

@@ -54,17 +54,17 @@ Vercel (one project, one origin, deployed from main)                  Gemini
 
 ## 3. Engine (pure functions, fully tested) — `web/js/engine/`
 
-| Module | Responsibility |
-|---|---|
-| `money.js` | Largest-remainder allocation so category amounts sum **exactly** to the budget; `Intl.NumberFormat` formatting (INR uses lakh/crore grouping) |
-| `dates.js` | Back-scheduling milestones from the event date; overdue items pulled forward and flagged "Do now"; injected clock for tests |
-| `templates.js` | Per event type: default functions/sub-events, vendor categories, default budget weights, task skeletons |
-| `benchmarks.js` | Approximate cost ranges (per-plate food, venue per guest, etc.), city-tier and season multipliers. Stored in INR, converted with a static documented rate table. **Mark every figure as an approximation** and list this in the README assumptions. |
-| `feasibility.js` | Compares budget to the minimum realistic cost; returns band (`comfortable`, `tight`, `short`, `unrealistic`), shortfall %, and **computed** trade-offs (e.g. "reduce guests to N", "lower per-plate to X") |
-| `catering.js` | Expected attendance = confirmed + pending × assumed show-up rate (default 0.75, documented); per-plate × attendance |
-| `patch.js` | Applies an allowlisted patch to a plan and renormalises so budget totals stay exact; returns the new plan plus a human-readable diff |
-| `ics.js` | Builds a valid `.ics` file from milestones |
-| `baseline.js` | Generates a complete non-AI plan from templates and benchmarks (used when the API fails) |
+| Module           | Responsibility                                                                                                                                                                                                                                      |
+| ---------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `money.js`       | Largest-remainder allocation so category amounts sum **exactly** to the budget; `Intl.NumberFormat` formatting (INR uses lakh/crore grouping)                                                                                                       |
+| `dates.js`       | Back-scheduling milestones from the event date; overdue items pulled forward and flagged "Do now"; injected clock for tests                                                                                                                         |
+| `templates.js`   | Per event type: default functions/sub-events, vendor categories, default budget weights, task skeletons                                                                                                                                             |
+| `benchmarks.js`  | Approximate cost ranges (per-plate food, venue per guest, etc.), city-tier and season multipliers. Stored in INR, converted with a static documented rate table. **Mark every figure as an approximation** and list this in the README assumptions. |
+| `feasibility.js` | Compares budget to the minimum realistic cost; returns band (`comfortable`, `tight`, `short`, `unrealistic`), shortfall %, and **computed** trade-offs (e.g. "reduce guests to N", "lower per-plate to X")                                          |
+| `catering.js`    | Expected attendance = confirmed + pending × assumed show-up rate (default 0.75, documented); per-plate × attendance                                                                                                                                 |
+| `patch.js`       | Applies an allowlisted patch to a plan and renormalises so budget totals stay exact; returns the new plan plus a human-readable diff                                                                                                                |
+| `ics.js`         | Builds a valid `.ics` file from milestones                                                                                                                                                                                                          |
+| `baseline.js`    | Generates a complete non-AI plan from templates and benchmarks (used when the API fails)                                                                                                                                                            |
 
 Default wedding budget weights (from the design reference, adjustable by context): Venue 31, Catering 26, Decor 18, Photography 12, Attire 8, Entertainment 5. Define sensible weights for birthday and community events. Weights must sum to 100 before allocation.
 
@@ -92,19 +92,20 @@ Wrap every storage read/write in try/catch, validate on load, migrate by `schema
 
 All endpoints: `POST` JSON only, 32 KB body cap, zod-validated input, zod-validated model output, generic error messages, per-IP in-memory rate limit, and an `Origin` check (reject requests whose origin is not the deployment's own host or localhost for dev).
 
-| Endpoint | Purpose | Returns |
-|---|---|---|
-| `/api/intake` | Given partial context, decide if enough is known | `{ ready: true }` or `{ ready: false, questions: [...] }` (max 4 questions) |
-| `/api/plan?section=core\|vendors\|ideas` | Generate one plan section | Core = budget weights + milestones; vendors = checklist; ideas = themed ideas with `whyItFits` |
-| `/api/critique` | Audit a finished plan | `{ risks: [{ severity, title, detail, suggestedFix }] }` |
-| `/api/assist` | Chat reply plus optional patch | `{ reply, patch? }` |
-| `/api/vendor-message` | Draft outreach | `{ channel, subject?, body }` |
+| Endpoint                                 | Purpose                                          | Returns                                                                                        |
+| ---------------------------------------- | ------------------------------------------------ | ---------------------------------------------------------------------------------------------- |
+| `/api/intake`                            | Given partial context, decide if enough is known | `{ ready: true }` or `{ ready: false, questions: [...] }` (max 4 questions)                    |
+| `/api/plan?section=core\|vendors\|ideas` | Generate one plan section                        | Core = budget weights + milestones; vendors = checklist; ideas = themed ideas with `whyItFits` |
+| `/api/critique`                          | Audit a finished plan                            | `{ risks: [{ severity, title, detail, suggestedFix }] }`                                       |
+| `/api/assist`                            | Chat reply plus optional patch                   | `{ reply, patch? }`                                                                            |
+| `/api/vendor-message`                    | Draft outreach                                   | `{ channel, subject?, body }`                                                                  |
 
 **Tool loop** (server side, max 4 iterations, hard timeout): Gemini may call `get_event_template`, `check_feasibility`, `allocate_budget`, `schedule_milestones`. Each tool is a thin wrapper over the engine. If the SDK cannot combine function calling with a response schema, do the tool phase first, then a final structured-output call. If tool calling fails entirely, fall back to "engine computes first, model receives the results as grounded facts".
 
 **Patch allowlist** (anything else is rejected): `set_category_weight`, `set_category_planned`, `add_task`, `remove_task`, `move_milestone`, `add_milestone`, `add_idea`, `remove_idea`, `add_vendor_category`. A patch can never change the budget total unless the user explicitly asked for that, and the engine renormalises so sums stay exact.
 
 **Model call rules**
+
 - Timeout per call, one retry on transient errors only, no retry on 4xx.
 - User text reaches the model only as JSON inside clearly tagged data blocks. The system instruction says to treat it as data, never as instructions.
 - Output language follows `language` (en/hi/hinglish) but JSON keys and enum values stay in English.
@@ -115,11 +116,13 @@ All endpoints: `POST` JSON only, 32 KB body cap, zod-validated input, zod-valida
 **Mood:** warm, elegant, celebratory. Blush background, deep maroon primary, rose accents, serif display headings, soft rounded cards with light shadows. Polished but **uncluttered**.
 
 **Starting tokens** (sample from the reference image, then adjust so every pair passes WCAG AA, 4.5:1 for text, 3:1 for borders and focus rings):
+
 - Background `#FCF6F3`, sidebar `#F9EEEA`, surface `#FFFFFF`
 - Primary maroon about `#6D2E46`, rose accent about `#D98FA3`, success green, warning amber, error red (each with a text-safe shade)
 - Headings: a serif (self-host one subsetted `woff2` under 80 KB, or fall back to `Georgia, serif`); body: system UI stack. **No third-party font or image requests** (CSP).
 
 **Layout (desktop):** left sidebar, top bar, event hero banner, tab bar, card grid, right rail.
+
 - **Sidebar:** Dashboard, My Events, Budget, Timeline, Vendors, Ideas, Guest List, Settings.
 - **Top bar:** event switcher and a Settings entry (language, country, currency). No fake notification bell, avatar or upgrade card.
 - **Hero banner:** event title, date, guest count, city, "N days to go" (days only, no ticking seconds), "Edit event details". Use a CSS gradient and an inline-SVG floral motif; **no stock photos**.
@@ -133,6 +136,7 @@ All endpoints: `POST` JSON only, 32 KB body cap, zod-validated input, zod-valida
 **Mobile (320 px and up):** sidebar becomes a bottom or hamburger nav, cards stack, tabs scroll horizontally.
 
 **Accessibility requirements**
+
 - Semantic landmarks, skip link, every control labelled, visible focus rings.
 - Tabs follow the ARIA tablist pattern with arrow-key support.
 - Errors linked via `aria-describedby`; focus moves to the first invalid field.
@@ -182,16 +186,16 @@ All endpoints: `POST` JSON only, 32 KB body cap, zod-validated input, zod-valida
 
 ## 11. Build phases (commit and push after each)
 
-| # | Deliverable | Done when |
-|---|---|---|
-| 1 | Skeleton: folders, ESLint, `package.json`, CI workflow, `vercel.json`, `.env.example`, `.gitignore` | Empty page and a stub `/api/ping` both live on the Vercel URL; CI green |
-| 2 | Engine modules plus golden tests | All engine tests pass |
-| 3 | API: validation, Gemini client, tool loop, rate limit, origin check, all five endpoints | Handler and mocked-Gemini tests pass; one real manual call works |
-| 4 | Frontend shell: tokens, layout, hash router, storage layer, settings (language/country/currency) | Layout matches the reference at desktop and 320 px |
-| 5 | New-event flow: intake, feasibility screen, parallel plan generation, baseline fallback | Works end to end with the real API, and with the API blocked |
-| 6 | Dashboard tabs: Overview, Tasks, Budget (donut plus table, expenses), Vendors, Timeline, Guests, Ideas | All tracking updates instantly; accessible tab pattern |
-| 7 | Critic, assistant chat with patch diff/accept/undo, vendor message drafter | Each covered by tests and the live-region announcements |
-| 8 | Export (`.ics`, print, JSON backup/import), polish, axe clean, README, size check | Section 13 fully green |
+| #   | Deliverable                                                                                            | Done when                                                               |
+| --- | ------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------- |
+| 1   | Skeleton: folders, ESLint, `package.json`, CI workflow, `vercel.json`, `.env.example`, `.gitignore`    | Empty page and a stub `/api/ping` both live on the Vercel URL; CI green |
+| 2   | Engine modules plus golden tests                                                                       | All engine tests pass                                                   |
+| 3   | API: validation, Gemini client, tool loop, rate limit, origin check, all five endpoints                | Handler and mocked-Gemini tests pass; one real manual call works        |
+| 4   | Frontend shell: tokens, layout, hash router, storage layer, settings (language/country/currency)       | Layout matches the reference at desktop and 320 px                      |
+| 5   | New-event flow: intake, feasibility screen, parallel plan generation, baseline fallback                | Works end to end with the real API, and with the API blocked            |
+| 6   | Dashboard tabs: Overview, Tasks, Budget (donut plus table, expenses), Vendors, Timeline, Guests, Ideas | All tracking updates instantly; accessible tab pattern                  |
+| 7   | Critic, assistant chat with patch diff/accept/undo, vendor message drafter                             | Each covered by tests and the live-region announcements                 |
+| 8   | Export (`.ics`, print, JSON backup/import), polish, axe clean, README, size check                      | Section 13 fully green                                                  |
 
 ## 12. README outline (judges read this first)
 

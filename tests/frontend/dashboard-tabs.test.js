@@ -35,11 +35,13 @@ describe("Frontend Dashboard Tabs Integration Suite", () => {
   describe("Overview Tab", () => {
     it("should render overview metrics, progress ring, next milestone, and feasibility badge", () => {
       let navigatedTo = null;
-      let announcements = [];
+      const announcements = [];
 
       const view = renderOverviewTab(testEvent, {
         onUpdate: () => {},
-        onNavigateTab: (tab) => { navigatedTo = tab; },
+        onNavigateTab: (tab) => {
+          navigatedTo = tab;
+        },
         announce: (msg) => announcements.push(msg)
       });
 
@@ -65,9 +67,13 @@ describe("Frontend Dashboard Tabs Integration Suite", () => {
       let announced = null;
 
       const view = renderOverviewTab(testEvent, {
-        onUpdate: () => { updated = true; },
+        onUpdate: () => {
+          updated = true;
+        },
         onNavigateTab: () => {},
-        announce: (msg) => { announced = msg; }
+        announce: (msg) => {
+          announced = msg;
+        }
       });
 
       const checkbox = view.querySelector(".task-checkbox");
@@ -85,8 +91,12 @@ describe("Frontend Dashboard Tabs Integration Suite", () => {
       let announced = null;
 
       const view = renderTasksTab(testEvent, {
-        onUpdate: () => { updated = true; },
-        announce: (msg) => { announced = msg; }
+        onUpdate: () => {
+          updated = true;
+        },
+        announce: (msg) => {
+          announced = msg;
+        }
       });
 
       const initialCount = testEvent.tasks.length;
@@ -102,7 +112,9 @@ describe("Frontend Dashboard Tabs Integration Suite", () => {
     it("should support adding and deleting a task", () => {
       let updated = false;
       const view = renderTasksTab(testEvent, {
-        onUpdate: () => { updated = true; },
+        onUpdate: () => {
+          updated = true;
+        },
         announce: () => {}
       });
 
@@ -132,8 +144,12 @@ describe("Frontend Dashboard Tabs Integration Suite", () => {
       let announced = null;
 
       const view = renderBudgetTab(testEvent, {
-        onUpdate: () => { updated = true; },
-        announce: (msg) => { announced = msg; }
+        onUpdate: () => {
+          updated = true;
+        },
+        announce: (msg) => {
+          announced = msg;
+        }
       });
 
       const text = view.textContent;
@@ -149,7 +165,9 @@ describe("Frontend Dashboard Tabs Integration Suite", () => {
       form.dispatchEvent({ type: "submit", preventDefault: () => {} });
       assert.equal(updated, true);
       assert.equal(testEvent.expenses.length, 1);
-      assert.ok(announced.includes("2,50,000") || announced.includes("250000") || announced.includes("₹"));
+      assert.ok(
+        announced.includes("2,50,000") || announced.includes("250000") || announced.includes("₹")
+      );
 
       // Delete expense
       const deleteBtn = view.querySelector(".btn-delete-expense");
@@ -165,8 +183,12 @@ describe("Frontend Dashboard Tabs Integration Suite", () => {
       let drafted = null;
 
       const view = renderVendorsTab(testEvent, {
-        onUpdate: () => { updated = true; },
-        onDraftMessage: (v) => { drafted = v; },
+        onUpdate: () => {
+          updated = true;
+        },
+        onDraftMessage: (v) => {
+          drafted = v;
+        },
         announce: () => {}
       });
 
@@ -190,7 +212,9 @@ describe("Frontend Dashboard Tabs Integration Suite", () => {
     it("should allow adding a custom vendor category", () => {
       let updated = false;
       const view = renderVendorsTab(testEvent, {
-        onUpdate: () => { updated = true; },
+        onUpdate: () => {
+          updated = true;
+        },
         announce: () => {}
       });
 
@@ -209,7 +233,9 @@ describe("Frontend Dashboard Tabs Integration Suite", () => {
     it("should render milestone countdown, sequence, and toggle milestone completion", () => {
       let updated = false;
       const view = renderTimelineTab(testEvent, {
-        onUpdate: () => { updated = true; },
+        onUpdate: () => {
+          updated = true;
+        },
         announce: () => {}
       });
 
@@ -225,7 +251,9 @@ describe("Frontend Dashboard Tabs Integration Suite", () => {
     it("should allow scheduling a new custom milestone", () => {
       let updated = false;
       const view = renderTimelineTab(testEvent, {
-        onUpdate: () => { updated = true; },
+        onUpdate: () => {
+          updated = true;
+        },
         announce: () => {}
       });
 
@@ -244,7 +272,9 @@ describe("Frontend Dashboard Tabs Integration Suite", () => {
     it("should compute catering plates and support adding and updating guest RSVPs", () => {
       let updated = false;
       const view = renderGuestsTab(testEvent, {
-        onUpdate: () => { updated = true; },
+        onUpdate: () => {
+          updated = true;
+        },
         announce: () => {}
       });
 
@@ -279,7 +309,9 @@ describe("Frontend Dashboard Tabs Integration Suite", () => {
     it("should render idea cards and toggle favorite heart status", () => {
       let updated = false;
       const view = renderIdeasTab(testEvent, {
-        onUpdate: () => { updated = true; },
+        onUpdate: () => {
+          updated = true;
+        },
         announce: () => {}
       });
 
@@ -297,7 +329,9 @@ describe("Frontend Dashboard Tabs Integration Suite", () => {
     it("should allow proposing a custom concept", () => {
       let updated = false;
       const view = renderIdeasTab(testEvent, {
-        onUpdate: () => { updated = true; },
+        onUpdate: () => {
+          updated = true;
+        },
         announce: () => {}
       });
 
@@ -315,7 +349,9 @@ describe("Frontend Dashboard Tabs Integration Suite", () => {
   describe("In-Place Tab Navigation & Accessibility", () => {
     it("should render accessible tablist with correct ARIA attributes and selection", () => {
       let selected = null;
-      const nav = renderTablist("budget", (tabId) => { selected = tabId; });
+      const nav = renderTablist("budget", (tabId) => {
+        selected = tabId;
+      });
 
       const budgetTab = nav.querySelector("#tab-budget");
       assert.ok(budgetTab);
