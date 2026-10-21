@@ -40,7 +40,48 @@ export function getClientIP(req) {
 }
 
 /**
+ * Check if a hostname is strict localhost/loopback
+ * @param {string} hostname
+ * @returns {boolean}
+ */
+function isLocalHostname(hostname) {
+  const h = (hostname || "").toLowerCase().replace(/^\[|\]$/g, "");
+  return h === "localhost" || h === "127.0.0.1" || h === "::1";
+}
+
+/**
+ * Check if a URL strictly matches the server Host or is local
+ * @param {URL} urlObj
+ * @param {string} hostHeader
+ * @returns {boolean}
+ */
+function matchesHost(urlObj, hostHeader) {
+  if (!urlObj || !hostHeader) return false;
+  const reqHost = hostHeader.toLowerCase().trim();
+  const originHost = urlObj.host.toLowerCase().trim();
+
+  // 1. Exact host match (includes port if present)
+  if (originHost === reqHost) {
+    return true;
+  }
+
+  // 2. Hostname-only match (if port omitted in host header)
+  if (urlObj.hostname.toLowerCase() === reqHost) {
+    return true;
+  }
+
+  // 3. Localhost loopback in local dev/testing
+  const reqHostname = reqHost.split(":")[0];
+  if (isLocalHostname(urlObj.hostname) && (isLocalHostname(reqHostname) || reqHostname === "test")) {
+    return true;
+  }
+
+  return false;
+}
+
+/**
  * Validate that request Origin / Referer matches the server Host or is localhost
+ * Rejects subdomains like localhost.evil.com and foreign .vercel.app origins
  * @param {Object} req
  * @returns {boolean}
  */
@@ -53,17 +94,7 @@ export function isOriginAllowed(req) {
   // Check origin if present
   if (origin) {
     try {
-      const originUrl = new URL(origin);
-      const originHost = originUrl.host;
-      if (
-        originHost === host ||
-        originHost.startsWith("localhost") ||
-        originHost.startsWith("127.0.0.1") ||
-        originHost.endsWith(".vercel.app")
-      ) {
-        return true;
-      }
-      return false;
+      return matchesHost(new URL(origin), host);
     } catch {
       return false;
     }
@@ -72,24 +103,15 @@ export function isOriginAllowed(req) {
   // Check referer if present and no origin
   if (referer) {
     try {
-      const refererUrl = new URL(referer);
-      const refererHost = refererUrl.host;
-      if (
-        refererHost === host ||
-        refererHost.startsWith("localhost") ||
-        refererHost.startsWith("127.0.0.1") ||
-        refererHost.endsWith(".vercel.app")
-      ) {
-        return true;
-      }
-      return false;
+      return matchesHost(new URL(referer), host);
     } catch {
       return false;
     }
   }
 
   // If neither Origin nor Referer is present, allow only if host is localhost/test
-  return host.startsWith("localhost") || host.startsWith("127.0.0.1") || host === "test";
+  const reqHostname = host.split(":")[0].toLowerCase();
+  return isLocalHostname(reqHostname) || reqHostname === "test";
 }
 
 /**

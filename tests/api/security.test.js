@@ -52,6 +52,74 @@ describe("API Security Middleware", () => {
     assert.ok(res.data.error.includes("Forbidden"));
   });
 
+  it("should return 403 Forbidden for localhost.evil.com subdomain attack", async () => {
+    const req = createMockRequest({
+      headers: {
+        host: "localhost:3000",
+        origin: "https://localhost.evil.com"
+      }
+    });
+    const res = createMockResponse();
+
+    await secureApiHandler(req, res, {
+      handler: async () => ({ ok: true })
+    });
+
+    assert.equal(res.statusCode, 403);
+    assert.ok(res.data.error.includes("Forbidden"));
+  });
+
+  it("should return 403 Forbidden for foreign .vercel.app origin", async () => {
+    const req = createMockRequest({
+      headers: {
+        host: "utsav-tau.vercel.app",
+        origin: "https://attacker-app.vercel.app"
+      }
+    });
+    const res = createMockResponse();
+
+    await secureApiHandler(req, res, {
+      handler: async () => ({ ok: true })
+    });
+
+    assert.equal(res.statusCode, 403);
+    assert.ok(res.data.error.includes("Forbidden"));
+  });
+
+  it("should return 403 Forbidden for foreign .vercel.app in Referer", async () => {
+    const req = createMockRequest({
+      headers: {
+        host: "utsav-tau.vercel.app",
+        referer: "https://attacker-app.vercel.app/phishing"
+      }
+    });
+    const res = createMockResponse();
+
+    await secureApiHandler(req, res, {
+      handler: async () => ({ ok: true })
+    });
+
+    assert.equal(res.statusCode, 403);
+    assert.ok(res.data.error.includes("Forbidden"));
+  });
+
+  it("should allow matching production Origin on .vercel.app", async () => {
+    const reqProd = createMockRequest({
+      headers: {
+        host: "utsav-tau.vercel.app",
+        origin: "https://utsav-tau.vercel.app"
+      }
+    });
+    const resProd = createMockResponse();
+
+    await secureApiHandler(reqProd, resProd, {
+      handler: async () => ({ success: true })
+    });
+
+    assert.equal(resProd.statusCode, 200);
+    assert.equal(resProd.data.success, true);
+  });
+
   it("should allow matching Origin or localhost", async () => {
     const reqLocal = createMockRequest({
       headers: {
