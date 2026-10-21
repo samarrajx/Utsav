@@ -286,6 +286,13 @@ export function getActiveEvent() {
   return null;
 }
 
+/**
+ * Backwards compatibility helper (no sample data seeded)
+ */
+export function ensureInitialEvent() {
+  // Intentionally empty: no fake/sample events seeded
+}
+
 // ============================================================================
 // User Settings (Language, Country, Currency)
 // ============================================================================

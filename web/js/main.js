@@ -8,7 +8,7 @@
  */
 
 import { initRouter, navigate } from "./router.js";
-import { ensureInitialEvent, getActiveEvent, saveEvent, setActiveEventId } from "./storage.js";
+import { getActiveEvent, saveEvent, setActiveEventId } from "./storage.js";
 import { el } from "./dom.js";
 import { renderAppShell } from "./views/shell.js";
 import { renderHeroBanner } from "./views/hero.js";
@@ -275,7 +275,6 @@ function renderCurrentRoute() {
 
 // Initialise application
 document.addEventListener("DOMContentLoaded", () => {
-  ensureInitialEvent();
   initRouter((route) => {
     currentRouteState = route;
     renderCurrentRoute();
