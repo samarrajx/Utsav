@@ -12,6 +12,13 @@ import { renderTablist } from "./views/tabs.js";
 import { renderSettingsModal } from "./views/settings.js";
 import { renderEventsList } from "./views/events-list.js";
 import { renderNewEventFlow } from "./views/new-event.js";
+import { renderOverviewTab } from "./views/overview-tab.js";
+import { renderTasksTab } from "./views/tasks-tab.js";
+import { renderBudgetTab } from "./views/budget-tab.js";
+import { renderVendorsTab } from "./views/vendors-tab.js";
+import { renderTimelineTab } from "./views/timeline-tab.js";
+import { renderGuestsTab } from "./views/guests-tab.js";
+import { renderIdeasTab } from "./views/ideas-tab.js";
 
 /**
  * Announce messages to screen readers via ARIA live region
@@ -127,18 +134,54 @@ function renderCurrentRoute() {
       navigate(`#/event/${activeEvent.id}/${tabId}`);
     });
 
-    // Content container for current tab
+    // Content container for current tab with real interactive views
+    let tabContentNode;
+    const tabOptions = {
+      onUpdate: (updatedEvent) => {
+        saveEvent(updatedEvent);
+      },
+      onNavigateTab: (tabId) => {
+        navigate(`#/event/${activeEvent.id}/${tabId}`);
+      },
+      onDraftMessage: (_vendor) => {
+        const text = `Hi, I am planning a celebration (${activeEvent.title}) on ${activeEvent.date} in ${activeEvent.city} for ~${activeEvent.guests?.target || 100} guests. Are you available on this date, and could you share your package pricing?`;
+        navigator.clipboard?.writeText(text);
+        alert(`Vendor outreach message copied to clipboard!\n\n"${text}"`);
+      },
+      announce
+    };
+
+    switch (activeTab) {
+      case "tasks":
+        tabContentNode = renderTasksTab(activeEvent, tabOptions);
+        break;
+      case "budget":
+        tabContentNode = renderBudgetTab(activeEvent, tabOptions);
+        break;
+      case "vendors":
+        tabContentNode = renderVendorsTab(activeEvent, tabOptions);
+        break;
+      case "timeline":
+        tabContentNode = renderTimelineTab(activeEvent, tabOptions);
+        break;
+      case "guests":
+        tabContentNode = renderGuestsTab(activeEvent, tabOptions);
+        break;
+      case "ideas":
+        tabContentNode = renderIdeasTab(activeEvent, tabOptions);
+        break;
+      case "overview":
+      default:
+        tabContentNode = renderOverviewTab(activeEvent, tabOptions);
+        break;
+    }
+
     const tabpanel = el("section", {
       id: `tabpanel-${activeTab}`,
       role: "tabpanel",
       "aria-labelledby": `tab-${activeTab}`,
       className: "tabpanel-content"
-    }, [
-      el("div", { className: "card", style: { padding: "1.5rem" } }, [
-        el("h2", { style: { fontFamily: "Georgia, serif", color: "#6D2E46", marginBottom: "0.5rem" } }, `${activeTab.toUpperCase()} SECTION`),
-        el("p", { style: { color: "#665057" } }, `Viewing ${activeTab} for "${activeEvent.title}".`)
-      ])
-    ]);
+    }, [tabContentNode]);
 
     mainViewContent = el("div", { className: "event-dashboard-flow" }, [
       hero,
