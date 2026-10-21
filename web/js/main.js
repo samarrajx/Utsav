@@ -11,6 +11,7 @@ import { renderHeroBanner } from "./views/hero.js";
 import { renderTablist } from "./views/tabs.js";
 import { renderSettingsModal } from "./views/settings.js";
 import { renderEventsList } from "./views/events-list.js";
+import { renderNewEventFlow } from "./views/new-event.js";
 
 /**
  * Announce messages to screen readers via ARIA live region
@@ -96,34 +97,11 @@ function renderCurrentRoute() {
     navigate("#/");
     return;
   } else if (route.path === "new") {
-    // New Event intake placeholder shell (full AI intake built in Phase 5)
-    mainViewContent = el("div", { className: "card", style: { padding: "2rem" } }, [
-      el("h2", { style: { fontFamily: "Georgia, serif", color: "#6D2E46", marginBottom: "0.5rem" } }, "Plan a New Celebration"),
-      el("p", { style: { color: "#665057", marginBottom: "1.5rem" } }, "Smart intake engine with deterministic budget benchmarks and AI assistance."),
-      el("div", { style: { display: "flex", gap: "1rem" } }, [
-        el("button", {
-          className: "btn btn-primary",
-          type: "button",
-          onClick: () => {
-            const newEvt = generateBaselinePlan({
-              type: "wedding",
-              title: "New Celebration Plan",
-              city: "Mumbai",
-              budget: 1000000,
-              guests: 150
-            });
-            saveEvent(newEvt);
-            setActiveEventId(newEvt.id);
-            navigate(`#/event/${newEvt.id}/overview`);
-          }
-        }, "Generate Fast Baseline Plan"),
-        el("button", {
-          className: "btn btn-secondary",
-          type: "button",
-          onClick: () => navigate("#/events")
-        }, "Cancel")
-      ])
-    ]);
+    mainViewContent = renderNewEventFlow({
+      onComplete: (newEvent) => {
+        announce(`Celebration plan created for ${newEvent.title}.`);
+      }
+    });
     announce("Navigated to New Event creation.");
   } else {
     // Event dashboard view: overview / specific tab
