@@ -196,7 +196,7 @@ function matchesSelector(element, selector) {
 }
 
 export class MockDOMParser {
-  parseFromString(xmlString, _mimeType) {
+  parseFromString(_xmlString, _mimeType) {
     const svgElem = new MockElement("svg");
     return {
       querySelector: () => svgElem
