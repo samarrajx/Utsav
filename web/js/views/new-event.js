@@ -166,6 +166,14 @@ export function renderNewEventFlow({ onComplete } = {}) {
       placeholder: "e.g. Open-air sunset lawn, traditional Rajasthani food, candid cinematic photography, live acoustic music"
     }, state.mustHaves);
 
+    const submitBtn = el("button", {
+      type: "submit",
+      className: "btn btn-primary"
+    }, [
+      "Check Feasibility & Continue",
+      icon("arrowRight", "btn-icon")
+    ]);
+
     const form = el("form", {
       className: "wizard-form card",
       onSubmit: async (e) => {
@@ -254,17 +262,10 @@ export function renderNewEventFlow({ onComplete } = {}) {
           className: "btn btn-secondary",
           onClick: () => navigate("#/events")
         }, "Cancel"),
-        submitBtn = el("button", {
-          type: "submit",
-          className: "btn btn-primary"
-        }, [
-          "Check Feasibility & Continue",
-          icon("arrowRight", "btn-icon")
-        ])
+        submitBtn
       ])
     ]);
 
-    let submitBtn;
     container.appendChild(form);
     return container;
   }
