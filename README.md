@@ -8,7 +8,7 @@
 [![Tests](https://img.shields.io/badge/Tests-147%20passed%20%7C%200%20failed-success?style=for-the-badge&logo=node.js)](./tests/)
 [![Coverage](https://img.shields.io/badge/Coverage-96.1%25%20line%20%7C%2080.8%25%20branch-blue?style=for-the-badge)](./tests/)
 [![Vanilla JS](https://img.shields.io/badge/Vanilla-ES%20Modules-yellow?style=for-the-badge&logo=javascript)](./web/)
-[![Model](https://img.shields.io/badge/Gemini-2.5%20Flash%20Lite-orange?style=for-the-badge&logo=google)](https://ai.google.dev/)
+[![Model](https://img.shields.io/badge/Gemini-2.5%20Flash-orange?style=for-the-badge&logo=google)](https://ai.google.dev/)
 
 </div>
 
@@ -93,7 +93,7 @@ Utsav uses **no build step and no framework**. Everything is plain ES modules se
                               ▼
 ┌─────────────────────────────────────────────────────────┐
 │                     Gemini API                          │
-│         gemini-2.5-flash-lite  (function calling)       │
+│         gemini-2.5-flash  (function calling)            │
 └─────────────────────────────────────────────────────────┘
 ```
 
@@ -303,7 +303,7 @@ npm install
 # 3. Set environment variables
 #    Create a .env.local file (never commit this)
 echo 'GEMINI_API_KEY=your_key_here' >> .env.local
-echo 'GEMINI_MODEL=gemini-2.5-flash-lite' >> .env.local
+echo 'GEMINI_MODEL=gemini-2.5-flash' >> .env.local
 
 # 4. Start the local dev server (Vercel emulates serverless functions)
 vercel dev
@@ -313,10 +313,10 @@ Open [http://localhost:3000](http://localhost:3000).
 
 ### Environment Variables
 
-| Variable         | Required | Description                                   |
-| ---------------- | -------- | --------------------------------------------- |
-| `GEMINI_API_KEY` | ✅ Yes   | Google AI Studio API key                      |
-| `GEMINI_MODEL`   | Optional | Model ID. Defaults to `gemini-2.5-flash-lite` |
+| Variable         | Required | Description                              |
+| ---------------- | -------- | ---------------------------------------- |
+| `GEMINI_API_KEY` | ✅ Yes   | Google AI Studio API key                 |
+| `GEMINI_MODEL`   | Optional | Model ID. Defaults to `gemini-2.5-flash` |
 
 ---
 

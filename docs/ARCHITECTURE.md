@@ -61,7 +61,7 @@ The model is prohibited from doing mental math; instead, it executes designated 
                                                             v
                                             +-------------------------------+
                                             |       Google Gemini API       |
-                                            |   (gemini-2.5-flash-lite)     |
+                                            |       (gemini-2.5-flash)      |
                                             +-------------------------------+
 ```
 
@@ -168,7 +168,7 @@ All API routes run as lightweight Vercel serverless functions:
 
 ### 5.3 Gemini Model Client (`api/_lib/gemini.js`)
 
-- Connects to Google Gemini API (`gemini-2.5-flash-lite`).
+- Connects to Google Gemini API (`gemini-2.5-flash`).
 - Implements function calling tool loops for calculations and templates.
 - Enforces JSON output structure matching Zod schemas.
 - Automatic retry with exponential backoff on transient HTTP 429/503 errors.

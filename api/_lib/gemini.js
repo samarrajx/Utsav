@@ -5,7 +5,7 @@
 
 import { GoogleGenAI } from "@google/genai";
 
-export const DEFAULT_GEMINI_MODEL = "gemini-2.5-flash-lite";
+export const DEFAULT_GEMINI_MODEL = "gemini-2.5-flash";
 export const GEMINI_TIMEOUT_MS = 25000; // 25 seconds
 
 let mockClient = null;

@@ -7,7 +7,7 @@
 
 import { secureApiHandler } from "./_lib/security.js";
 import { intakeInputSchema, intakeOutputSchema } from "./_lib/schemas.js";
-import { callGeminiStructured } from "./_lib/gemini.js";
+import { callGeminiStructured, DEFAULT_GEMINI_MODEL } from "./_lib/gemini.js";
 import { checkFeasibility } from "../web/js/engine/index.js";
 import { apiResponseCache, generateCacheKey } from "./_lib/cache.js";
 
@@ -18,7 +18,7 @@ function isContextComplete(data) {
 
 async function queryMissingQuestions(data, res) {
   const { type, city, budget, guests, date, currency, mustHaves, language } = data;
-  const modelName = process.env.GEMINI_MODEL || "gemini-2.5-flash-lite";
+  const modelName = process.env.GEMINI_MODEL || DEFAULT_GEMINI_MODEL;
   const cacheKey = generateCacheKey(
     "intake",
     { type, city, budget, guests, date, currency, mustHaves, language },

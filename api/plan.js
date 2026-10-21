@@ -12,7 +12,7 @@ import {
   planVendorsOutputSchema,
   planIdeasOutputSchema
 } from "./_lib/schemas.js";
-import { callGeminiStructured } from "./_lib/gemini.js";
+import { callGeminiStructured, DEFAULT_GEMINI_MODEL } from "./_lib/gemini.js";
 import {
   getEventTemplate,
   allocateBudget,
@@ -191,7 +191,7 @@ export default async function handler(req, res) {
     schema: planInputSchema,
     handler: async (data) => {
       const { section } = data;
-      const modelName = process.env.GEMINI_MODEL || "gemini-2.5-flash-lite";
+      const modelName = process.env.GEMINI_MODEL || DEFAULT_GEMINI_MODEL;
       const cacheKey = generateCacheKey(`plan:${section}`, data, modelName);
       const cached = apiResponseCache.get(cacheKey);
 
