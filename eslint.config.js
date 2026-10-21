@@ -22,7 +22,8 @@ export default [
     },
     rules: {
       "no-unused-vars": ["error", { "argsIgnorePattern": "^_" }],
-      "no-console": ["warn", { "allow": ["warn", "error", "info"] }]
+      "no-console": ["warn", { "allow": ["warn", "error", "info"] }],
+      "no-control-regex": "off"
     }
   }
 ];
