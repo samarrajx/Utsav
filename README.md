@@ -6,7 +6,7 @@
 
 [![Live on Vercel](https://img.shields.io/badge/Live-utsav--tau.vercel.app-brightgreen?style=for-the-badge&logo=vercel)](https://utsav-tau.vercel.app/)
 [![Tests](https://img.shields.io/badge/Tests-136%20passed%20%7C%200%20failed-success?style=for-the-badge&logo=node.js)](./tests/)
-[![Coverage](https://img.shields.io/badge/Coverage-96.8%25%20line-blue?style=for-the-badge)](./tests/)
+[![Coverage](https://img.shields.io/badge/Coverage-94.8%25%20line%20%7C%2072.0%25%20branch-blue?style=for-the-badge)](./tests/)
 [![Vanilla JS](https://img.shields.io/badge/Vanilla-ES%20Modules-yellow?style=for-the-badge&logo=javascript)](./web/)
 [![Model](https://img.shields.io/badge/Gemini-2.5%20Flash%20Lite-orange?style=for-the-badge&logo=google)](https://ai.google.dev/)
 
@@ -148,9 +148,9 @@ Dashboard rendered (7 tabs)
 
 The intake and chat endpoints use Gemini's **function calling** (tool-use) feature in a loop:
 
-1. The server sends the user's message along with a set of tool definitions (e.g., `get_benchmark_price`, `check_date_availability`, `lookup_city_tier`).
-2. Gemini responds with a `functionCall` — the model requests specific data rather than guessing.
-3. The server executes the corresponding engine function and returns the result as a `functionResponse`.
+1. The server provides Gemini with a set of deterministic engine tool definitions: `get_event_template`, `check_feasibility`, `allocate_budget`, and `schedule_milestones`.
+2. Gemini responds with a `functionCall` — the model requests specific engine data and calculations rather than guessing numbers or dates.
+3. The server executes the corresponding engine function (`api/_lib/tools.js`) and returns the result as a `functionResponse`.
 4. Steps 2–3 repeat until Gemini produces a plain `text` response (no pending function calls).
 5. The final text response is returned to the browser.
 
@@ -189,9 +189,9 @@ If the Gemini API is unreachable (network error, quota exhaustion, or API key ab
 
 | Assumption | Detail |
 |---|---|
-| **Benchmark figures** | Approximate \~2024 India market rates; sourced from public wedding/event industry reports. Treat as order-of-magnitude estimates, not binding quotes. |
-| **Currency** | Indian Rupees (₹) only. Exchange rates are static constants — not fetched at runtime. |
-| **Show-up rate** | Default **85%** applied to guest headcount for catering sizing (configurable in intake). Formula: `cateringHeads = Math.ceil(invitedGuests × 0.85)`. |
+| **Benchmark figures** | Approximate ~2024 India market rates; sourced from public wedding/event industry reports. Treat as order-of-magnitude estimates, not binding quotes. |
+| **Currency** | Multi-currency support: Indian Rupee (₹ INR) is default; USD ($), EUR (€), GBP (£), and AED (د.إ) are supported in settings via benchmark conversion multipliers. |
+| **Show-up rate** | Default **75%** applied to pending/unconfirmed RSVPs for catering sizing. Formula: `expectedAttendance = confirmed + Math.round(pending × 0.75)`. |
 | **City tiers** | Tier-1 (Mumbai, Delhi, Bengaluru, Hyderabad, Chennai, Pune), Tier-2 (Jaipur, Ahmedabad, Lucknow, Kochi, …), Tier-3 (all others). Multipliers: 1.0× / 0.75× / 0.55× respectively. |
 | **Season** | Peak (Oct–Feb, May–Jun) and off-peak multipliers applied to venue and catering line items. |
 | **Plan variants** | "Conservative", "Balanced", "Premium" are relative to the user's stated budget — not absolute price tiers. |
@@ -205,9 +205,9 @@ If the Gemini API is unreachable (network error, quota exhaustion, or API key ab
 | **API key isolation** | `GEMINI_API_KEY` is read only inside Vercel serverless functions. It is never sent to the browser or logged. |
 | **Input validation** | All API request bodies are parsed through **Zod schemas** before any processing. Invalid payloads return `400` immediately. |
 | **Prompt injection defence** | User-supplied strings are never interpolated directly into system prompts. They are inserted into structured `user` turn content with role separation enforced by the API. |
-| **CSP headers** | `Content-Security-Policy` restricts script sources to `'self'`; no inline eval; external connections limited to `generativelanguage.googleapis.com`. |
-| **Rate limiting** | In-memory sliding-window limiter: 10 requests / minute per IP on all `/api/*` routes. |
-| **Origin check** | API routes reject requests whose `Origin` header does not match the deployed Vercel domain (or `localhost` in dev). |
+| **CSP headers** | `Content-Security-Policy` strictly enforces `connect-src 'self'`. The browser never connects directly to Google; all AI calls are proxied through serverless functions where the API key is secured. |
+| **Rate limiting** | In-memory sliding-window limiter: **30 requests / minute** per IP on all `/api/*` routes (`api/_lib/security.js`). |
+| **Origin check** | API routes enforce strict same-origin host matching (`matchesHost`). Subdomain spoofing (such as `localhost.evil.com`) and foreign `.vercel.app` domains are rejected with `403 Forbidden`. |
 
 ---
 
@@ -258,9 +258,9 @@ node --test --experimental-test-coverage --test-coverage-exclude="tests/**"
 | `tests/frontend/new-event.test.js` | 5 | 0 | 92.5% |
 | `tests/frontend/dashboard-tabs.test.js` | 12 | 0 | 96.2% |
 | `tests/frontend/assistant-and-modal.test.js` | 6 | 0 | 91.3% |
-| **Total** | **136** | **0** | **96.8% (engine & API) / 94.8% (all files)** |
+| **Total** | **136** | **0** | **94.8% line · 72.0% branch (all source files)** |
 
-Coverage is measured directly using Node.js built-in V8 test coverage runner with zero external test dependencies.
+> **Coverage Note:** When test runner files are excluded, the test suite achieves **94.8% line coverage** and **72.0% branch coverage** across all application source files (and **96.8% line coverage** across the core planning engine and serverless API modules). Measured directly using Node.js built-in V8 test coverage with zero external test dependencies.
 
 ---
 
