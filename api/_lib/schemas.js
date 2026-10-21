@@ -224,6 +224,7 @@ export const assistOutputSchema = z.object({
       whyItFits: z.string().optional(),
       category: z.string().optional()
     })
+    .nullable()
     .optional()
 });
 
@@ -247,6 +248,6 @@ export const vendorMessageInputSchema = z
 
 export const vendorMessageOutputSchema = z.object({
   channel: z.enum(["whatsapp", "email"]),
-  subject: z.string().optional(),
+  subject: z.string().nullable().optional(),
   body: z.string()
 });
