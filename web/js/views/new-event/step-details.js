@@ -107,6 +107,43 @@ export function createDetailInputs(state) {
  * @param {Function} onCancel
  * @returns {HTMLFormElement}
  */
+function buildTitleAndDateGrid(inputs) {
+  return el("div", { className: "form-grid-2" }, [
+    el("div", { className: "form-group" }, [
+      el("label", { htmlFor: "event-title", className: "form-label" }, "Event Title (Optional)"),
+      inputs.titleInput
+    ]),
+    el("div", { className: "form-group" }, [
+      el("label", { htmlFor: "event-date", className: "form-label" }, "Event Date *"),
+      inputs.dateInput
+    ])
+  ]);
+}
+
+function buildLocationAndBudgetGrid(inputs) {
+  return el("div", { className: "form-grid-3" }, [
+    el("div", { className: "form-group" }, [
+      el("label", { htmlFor: "event-city", className: "form-label" }, "Destination / City *"),
+      inputs.cityInput
+    ]),
+    el("div", { className: "form-group" }, [
+      el("label", { htmlFor: "event-guests", className: "form-label" }, "Target Guests *"),
+      inputs.guestsInput
+    ]),
+    el("div", { className: "form-group" }, [
+      el(
+        "label",
+        { htmlFor: "event-budget", className: "form-label" },
+        "Target Budget & Currency *"
+      ),
+      el("div", { style: { display: "flex", gap: "0.5rem" } }, [
+        inputs.budgetInput,
+        inputs.currencySelect
+      ])
+    ])
+  ]);
+}
+
 export function buildIntakeForm(typePicker, inputs, submitBtn, onSubmit, onCancel) {
   return el(
     "form",
@@ -119,44 +156,8 @@ export function buildIntakeForm(typePicker, inputs, submitBtn, onSubmit, onCance
         el("label", { className: "form-label" }, "1. Celebration Type"),
         typePicker
       ]),
-
-      el("div", { className: "form-grid-2" }, [
-        el("div", { className: "form-group" }, [
-          el(
-            "label",
-            { htmlFor: "event-title", className: "form-label" },
-            "Event Title (Optional)"
-          ),
-          inputs.titleInput
-        ]),
-        el("div", { className: "form-group" }, [
-          el("label", { htmlFor: "event-date", className: "form-label" }, "Event Date *"),
-          inputs.dateInput
-        ])
-      ]),
-
-      el("div", { className: "form-grid-3" }, [
-        el("div", { className: "form-group" }, [
-          el("label", { htmlFor: "event-city", className: "form-label" }, "Destination / City *"),
-          inputs.cityInput
-        ]),
-        el("div", { className: "form-group" }, [
-          el("label", { htmlFor: "event-guests", className: "form-label" }, "Target Guests *"),
-          inputs.guestsInput
-        ]),
-        el("div", { className: "form-group" }, [
-          el(
-            "label",
-            { htmlFor: "event-budget", className: "form-label" },
-            "Target Budget & Currency *"
-          ),
-          el("div", { style: { display: "flex", gap: "0.5rem" } }, [
-            inputs.budgetInput,
-            inputs.currencySelect
-          ])
-        ])
-      ]),
-
+      buildTitleAndDateGrid(inputs),
+      buildLocationAndBudgetGrid(inputs),
       el("div", { className: "form-group" }, [
         el(
           "label",
@@ -170,7 +171,6 @@ export function buildIntakeForm(typePicker, inputs, submitBtn, onSubmit, onCance
           "Mention any specific requirements, decor themes, food restrictions, or rituals."
         )
       ]),
-
       el("div", { className: "wizard-form-actions" }, [
         el(
           "button",

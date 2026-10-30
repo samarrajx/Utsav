@@ -298,6 +298,45 @@ function createGuestTableCard(filteredGuests, guestList, context) {
   return tableContainer;
 }
 
+function filterGuestList(guestList, activeFilter, searchQuery) {
+  return guestList.filter((g) => {
+    if (activeFilter !== "all" && g.status !== activeFilter) return false;
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      return (
+        (g.name || "").toLowerCase().includes(query) ||
+        (g.contact || "").toLowerCase().includes(query) ||
+        (g.diet || "").toLowerCase().includes(query)
+      );
+    }
+    return true;
+  });
+}
+
+function createGuestFilterCard({
+  activeFilter,
+  guestList,
+  attendance,
+  searchQuery,
+  onFilterChange,
+  onSearchChange
+}) {
+  return el("div", { className: "card guest-filter-card" }, [
+    el("div", { className: "guest-filter-row" }, [
+      createFilterPills(activeFilter, guestList, attendance, onFilterChange),
+      el("div", { className: "guest-search-wrap" }, [
+        el("input", {
+          type: "search",
+          className: "form-input guest-search-input",
+          placeholder: "Search name, contact, dietary...",
+          value: searchQuery,
+          onInput: onSearchChange
+        })
+      ])
+    ])
+  ]);
+}
+
 /**
  * Render the Guests Tab Panel
  *
@@ -334,39 +373,22 @@ export function renderGuestsTab(event, { onUpdate, announce }) {
       guestList.length
     );
 
-    const filteredGuests = guestList.filter((g) => {
-      if (activeFilter !== "all" && g.status !== activeFilter) return false;
-      if (searchQuery) {
-        const query = searchQuery.toLowerCase();
-        return (
-          (g.name || "").toLowerCase().includes(query) ||
-          (g.contact || "").toLowerCase().includes(query) ||
-          (g.diet || "").toLowerCase().includes(query)
-        );
-      }
-      return true;
-    });
+    const filteredGuests = filterGuestList(guestList, activeFilter, searchQuery);
 
-    const filterCard = el("div", { className: "card guest-filter-card" }, [
-      el("div", { className: "guest-filter-row" }, [
-        createFilterPills(activeFilter, guestList, attendance, (key) => {
-          activeFilter = key;
-          renderView();
-        }),
-        el("div", { className: "guest-search-wrap" }, [
-          el("input", {
-            type: "search",
-            className: "form-input guest-search-input",
-            placeholder: "Search name, contact, dietary...",
-            value: searchQuery,
-            onInput: (e) => {
-              searchQuery = e.target.value;
-              renderView();
-            }
-          })
-        ])
-      ])
-    ]);
+    const filterCard = createGuestFilterCard({
+      activeFilter,
+      guestList,
+      attendance,
+      searchQuery,
+      onFilterChange: (key) => {
+        activeFilter = key;
+        renderView();
+      },
+      onSearchChange: (e) => {
+        searchQuery = e.target.value;
+        renderView();
+      }
+    });
 
     const context = { onUpdate, renderView, announce, event };
     const tableCard = createGuestTableCard(filteredGuests, guestList, context);

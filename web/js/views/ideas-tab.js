@@ -110,6 +110,60 @@ function createIdeaCard(idea, { onToggleHeart }) {
   ]);
 }
 
+function handleAddIdeaSubmit(form, onAddIdea) {
+  const titleInput = form.querySelector("#new-idea-title");
+  const secSelect = form.querySelector("#new-idea-section");
+  const whyInput = form.querySelector("#new-idea-why");
+  const title = titleInput.value.trim();
+  if (!title) return;
+
+  onAddIdea({
+    id: `idea_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
+    section: secSelect.value || "general",
+    title,
+    whyItFits: whyInput.value.trim() || "User-added creative concept for celebration.",
+    saved: true
+  });
+
+  titleInput.value = "";
+  whyInput.value = "";
+}
+
+function buildIdeaFormFields() {
+  return el("div", { className: "form-row-grid" }, [
+    el("div", { className: "form-group flex-2" }, [
+      el("label", { htmlFor: "new-idea-title", className: "form-label" }, "Concept Title"),
+      el("input", {
+        id: "new-idea-title",
+        type: "text",
+        required: true,
+        className: "form-input",
+        placeholder: "e.g., Live Chai & Kulfi Tasting Station during Sangeet"
+      })
+    ]),
+    el("div", { className: "form-group flex-1" }, [
+      el("label", { htmlFor: "new-idea-section", className: "form-label" }, "Section Domain"),
+      el("select", { id: "new-idea-section", className: "form-input" }, [
+        el("option", { value: "catering" }, "Catering & Food"),
+        el("option", { value: "decor" }, "Decor & Aesthetics"),
+        el("option", { value: "entertainment" }, "Entertainment"),
+        el("option", { value: "keepsake" }, "Keepsake & Memorabilia"),
+        el("option", { value: "rituals" }, "Rituals & Traditions"),
+        el("option", { value: "general" }, "General Concept")
+      ])
+    ]),
+    el("div", { className: "form-group flex-2" }, [
+      el("label", { htmlFor: "new-idea-why", className: "form-label" }, "Why It Fits / Context"),
+      el("input", {
+        id: "new-idea-why",
+        type: "text",
+        className: "form-input",
+        placeholder: "e.g., Delights evening guests after dinner."
+      })
+    ])
+  ]);
+}
+
 function createAddIdeaForm(onAddIdea) {
   const form = el(
     "form",
@@ -117,22 +171,7 @@ function createAddIdeaForm(onAddIdea) {
       className: "card add-idea-card",
       onSubmit: (e) => {
         e.preventDefault();
-        const titleInput = form.querySelector("#new-idea-title");
-        const secSelect = form.querySelector("#new-idea-section");
-        const whyInput = form.querySelector("#new-idea-why");
-        const title = titleInput.value.trim();
-        if (!title) return;
-
-        onAddIdea({
-          id: `idea_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
-          section: secSelect.value || "general",
-          title,
-          whyItFits: whyInput.value.trim() || "User-added creative concept for celebration.",
-          saved: true
-        });
-
-        titleInput.value = "";
-        whyInput.value = "";
+        handleAddIdeaSubmit(form, onAddIdea);
       }
     },
     [
@@ -140,42 +179,7 @@ function createAddIdeaForm(onAddIdea) {
         icon("plus"),
         "Propose Custom Celebration Concept"
       ]),
-      el("div", { className: "form-row-grid" }, [
-        el("div", { className: "form-group flex-2" }, [
-          el("label", { htmlFor: "new-idea-title", className: "form-label" }, "Concept Title"),
-          el("input", {
-            id: "new-idea-title",
-            type: "text",
-            required: true,
-            className: "form-input",
-            placeholder: "e.g., Live Chai & Kulfi Tasting Station during Sangeet"
-          })
-        ]),
-        el("div", { className: "form-group flex-1" }, [
-          el("label", { htmlFor: "new-idea-section", className: "form-label" }, "Section Domain"),
-          el("select", { id: "new-idea-section", className: "form-input" }, [
-            el("option", { value: "catering" }, "Catering & Food"),
-            el("option", { value: "decor" }, "Decor & Aesthetics"),
-            el("option", { value: "entertainment" }, "Entertainment"),
-            el("option", { value: "keepsake" }, "Keepsake & Memorabilia"),
-            el("option", { value: "rituals" }, "Rituals & Traditions"),
-            el("option", { value: "general" }, "General Concept")
-          ])
-        ]),
-        el("div", { className: "form-group flex-2" }, [
-          el(
-            "label",
-            { htmlFor: "new-idea-why", className: "form-label" },
-            "Why It Fits / Context"
-          ),
-          el("input", {
-            id: "new-idea-why",
-            type: "text",
-            className: "form-input",
-            placeholder: "e.g., Delights evening guests after dinner."
-          })
-        ])
-      ]),
+      buildIdeaFormFields(),
       el("div", { className: "form-actions-right" }, [
         el("button", { type: "submit", className: "btn btn-primary" }, [
           icon("plus"),
@@ -185,6 +189,40 @@ function createAddIdeaForm(onAddIdea) {
     ]
   );
   return form;
+}
+
+function renderIdeasGrid(
+  cardsGrid,
+  filteredIdeas,
+  showFavoritesOnly,
+  { onUpdate, renderView, announce, event }
+) {
+  if (filteredIdeas.length === 0) {
+    const emptyMsg = showFavoritesOnly
+      ? "No saved favorite ideas yet. Click the heart on any idea card to pin it here!"
+      : "No ideas found in this category.";
+    cardsGrid.appendChild(
+      el("div", { className: "card empty-state-card flex-full" }, [createEmptyState(emptyMsg)])
+    );
+    return;
+  }
+
+  filteredIdeas.forEach((idea) => {
+    cardsGrid.appendChild(
+      createIdeaCard(idea, {
+        onToggleHeart: (targetIdea) => {
+          targetIdea.saved = !targetIdea.saved;
+          onUpdate(event);
+          renderView();
+          announce?.(
+            targetIdea.saved
+              ? `Saved "${targetIdea.title}" to favorites.`
+              : `Removed "${targetIdea.title}" from favorites.`
+          );
+        }
+      })
+    );
+  });
 }
 
 /**
@@ -233,31 +271,8 @@ export function renderIdeasTab(event, { onUpdate, announce }) {
     });
 
     const cardsGrid = el("div", { className: "ideas-grid" });
-    if (filteredIdeas.length === 0) {
-      const emptyMsg = showFavoritesOnly
-        ? "No saved favorite ideas yet. Click the heart on any idea card to pin it here!"
-        : "No ideas found in this category.";
-      cardsGrid.appendChild(
-        el("div", { className: "card empty-state-card flex-full" }, [createEmptyState(emptyMsg)])
-      );
-    } else {
-      filteredIdeas.forEach((idea) => {
-        cardsGrid.appendChild(
-          createIdeaCard(idea, {
-            onToggleHeart: (targetIdea) => {
-              targetIdea.saved = !targetIdea.saved;
-              onUpdate(event);
-              renderView();
-              announce?.(
-                targetIdea.saved
-                  ? `Saved "${targetIdea.title}" to favorites.`
-                  : `Removed "${targetIdea.title}" from favorites.`
-              );
-            }
-          })
-        );
-      });
-    }
+    const context = { onUpdate, renderView, announce, event };
+    renderIdeasGrid(cardsGrid, filteredIdeas, showFavoritesOnly, context);
 
     const addIdeaForm = createAddIdeaForm((newIdea) => {
       event.ideas.push(newIdea);

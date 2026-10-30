@@ -8,7 +8,7 @@
 import { el, icon } from "../dom.js";
 import { formatCurrency, formatCompactCurrency } from "../engine/money.js";
 import { formatDisplayDate } from "../engine/dates.js";
-import { createSectionHeader } from "./shared/ui-helpers.js";
+import { createSectionHeader, createEmptyState } from "./shared/ui-helpers.js";
 
 const CATEGORY_COLORS = [
   "#6D2E46", // Primary maroon
@@ -240,76 +240,72 @@ function createCategoryTableCard(categories, currency) {
   ]);
 }
 
-function createExpensesCard(
-  expenses,
+function createExpenseTableRow(
+  exp,
   categories,
   currency,
   { onUpdate, renderView, announce, event }
 ) {
+  const cat = categories.find((c) => c.id === exp.categoryId);
+  return el("tr", {}, [
+    el("td", { className: "text-muted" }, exp.date ? formatDisplayDate(exp.date) : "—"),
+    el("td", { className: "font-semibold" }, exp.label),
+    el("td", {}, cat ? cat.name : exp.categoryId || "General"),
+    el("td", { className: "text-right font-mono font-bold" }, formatCurrency(exp.amount, currency)),
+    el("td", { className: "text-right" }, [
+      el(
+        "button",
+        {
+          type: "button",
+          className: "btn-icon-subtle btn-delete-expense",
+          "aria-label": `Delete expense "${exp.label}"`,
+          onClick: () => {
+            const idx = event.expenses.indexOf(exp);
+            if (idx >= 0) {
+              event.expenses.splice(idx, 1);
+              onUpdate(event);
+              renderView();
+              announce?.(`Expense "${exp.label}" deleted.`);
+            }
+          }
+        },
+        [icon("trash")]
+      )
+    ])
+  ]);
+}
+
+function createExpensesTable(expenses, categories, currency, context) {
+  return el("div", { className: "table-responsive-wrapper" }, [
+    el(
+      "table",
+      { className: "data-table expenses-table", "aria-label": "Itemized recorded expenses" },
+      [
+        el("thead", {}, [
+          el("tr", {}, [
+            el("th", { scope: "col" }, "Date"),
+            el("th", { scope: "col" }, "Description"),
+            el("th", { scope: "col" }, "Category"),
+            el("th", { scope: "col", className: "text-right" }, "Amount"),
+            el("th", { scope: "col", className: "text-right" }, "Action")
+          ])
+        ]),
+        el(
+          "tbody",
+          {},
+          expenses.map((exp) => createExpenseTableRow(exp, categories, currency, context))
+        )
+      ]
+    )
+  ]);
+}
+
+function createExpensesCard(expenses, categories, currency, context) {
   return el("div", { className: "card expenses-logger-card" }, [
     createSectionHeader("Recorded Expenses", "checklist", `${expenses.length} logged`),
     expenses.length > 0
-      ? el("div", { className: "table-responsive-wrapper" }, [
-          el(
-            "table",
-            { className: "data-table expenses-table", "aria-label": "Itemized recorded expenses" },
-            [
-              el("thead", {}, [
-                el("tr", {}, [
-                  el("th", { scope: "col" }, "Date"),
-                  el("th", { scope: "col" }, "Description"),
-                  el("th", { scope: "col" }, "Category"),
-                  el("th", { scope: "col", className: "text-right" }, "Amount"),
-                  el("th", { scope: "col", className: "text-right" }, "Action")
-                ])
-              ]),
-              el(
-                "tbody",
-                {},
-                expenses.map((exp) => {
-                  const cat = categories.find((c) => c.id === exp.categoryId);
-                  return el("tr", {}, [
-                    el(
-                      "td",
-                      { className: "text-muted" },
-                      exp.date ? formatDisplayDate(exp.date) : "—"
-                    ),
-                    el("td", { className: "font-semibold" }, exp.label),
-                    el("td", {}, cat ? cat.name : exp.categoryId || "General"),
-                    el(
-                      "td",
-                      { className: "text-right font-mono font-bold" },
-                      formatCurrency(exp.amount, currency)
-                    ),
-                    el("td", { className: "text-right" }, [
-                      el(
-                        "button",
-                        {
-                          type: "button",
-                          className: "btn-icon-subtle btn-delete-expense",
-                          "aria-label": `Delete expense "${exp.label}"`,
-                          onClick: () => {
-                            const idx = event.expenses.indexOf(exp);
-                            if (idx >= 0) {
-                              event.expenses.splice(idx, 1);
-                              onUpdate(event);
-                              renderView();
-                              announce?.(`Expense "${exp.label}" deleted.`);
-                            }
-                          }
-                        },
-                        [icon("trash")]
-                      )
-                    ])
-                  ]);
-                })
-              )
-            ]
-          )
-        ])
-      : el(
-          "p",
-          { className: "empty-state-text" },
+      ? createExpensesTable(expenses, categories, currency, context)
+      : createEmptyState(
           "No individual expenses recorded yet. Use the form below to track payments."
         )
   ]);

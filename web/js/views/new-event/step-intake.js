@@ -8,6 +8,51 @@ import { navigate } from "../../router.js";
 import { renderTypePicker } from "./step-basics.js";
 import { createDetailInputs, buildIntakeForm } from "./step-details.js";
 
+function collectIntakeState(state, inputs) {
+  state.title =
+    inputs.titleInput.value.trim() ||
+    `${state.type.charAt(0).toUpperCase() + state.type.slice(1)} in ${inputs.cityInput.value.trim() || "India"}`;
+  state.date = inputs.dateInput.value;
+  state.city = inputs.cityInput.value.trim() || "Mumbai";
+  state.guests = Math.max(1, parseInt(inputs.guestsInput.value, 10) || 100);
+  state.budget = Math.max(100, parseInt(inputs.budgetInput.value, 10) || 500000);
+  state.currency = inputs.currencySelect.value;
+  state.mustHaves = inputs.mustHavesText.value.trim();
+}
+
+async function executeIntakeSubmission(state, submitBtn, updateView) {
+  submitBtn.disabled = true;
+  submitBtn.textContent = "Analyzing Details...";
+
+  const intakeResult = await fetchIntake({
+    type: state.type,
+    title: state.title,
+    date: state.date,
+    city: state.city,
+    countryCode: state.countryCode,
+    currency: state.currency,
+    budget: state.budget,
+    guests: state.guests,
+    mustHaves: state.mustHaves,
+    language: state.language
+  });
+
+  submitBtn.disabled = false;
+  submitBtn.textContent = "Check Feasibility & Continue →";
+
+  if (
+    intakeResult.ok &&
+    intakeResult.data?.ready === false &&
+    intakeResult.data.questions?.length > 0
+  ) {
+    state.questions = intakeResult.data.questions;
+    state.step = "questions";
+  } else {
+    state.step = "feasibility";
+  }
+  updateView();
+}
+
 /**
  * Render the full intake step view
  * @param {Object} state
@@ -47,46 +92,8 @@ export function renderIntakeStep(state, updateView) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    state.title =
-      inputs.titleInput.value.trim() ||
-      `${state.type.charAt(0).toUpperCase() + state.type.slice(1)} in ${inputs.cityInput.value.trim() || "India"}`;
-    state.date = inputs.dateInput.value;
-    state.city = inputs.cityInput.value.trim() || "Mumbai";
-    state.guests = Math.max(1, parseInt(inputs.guestsInput.value, 10) || 100);
-    state.budget = Math.max(100, parseInt(inputs.budgetInput.value, 10) || 500000);
-    state.currency = inputs.currencySelect.value;
-    state.mustHaves = inputs.mustHavesText.value.trim();
-
-    submitBtn.disabled = true;
-    submitBtn.textContent = "Analyzing Details...";
-
-    const intakeResult = await fetchIntake({
-      type: state.type,
-      title: state.title,
-      date: state.date,
-      city: state.city,
-      countryCode: state.countryCode,
-      currency: state.currency,
-      budget: state.budget,
-      guests: state.guests,
-      mustHaves: state.mustHaves,
-      language: state.language
-    });
-
-    submitBtn.disabled = false;
-    submitBtn.textContent = "Check Feasibility & Continue →";
-
-    if (
-      intakeResult.ok &&
-      intakeResult.data?.ready === false &&
-      intakeResult.data.questions?.length > 0
-    ) {
-      state.questions = intakeResult.data.questions;
-      state.step = "questions";
-    } else {
-      state.step = "feasibility";
-    }
-    updateView();
+    collectIntakeState(state, inputs);
+    await executeIntakeSubmission(state, submitBtn, updateView);
   };
 
   const form = buildIntakeForm(typePicker, inputs, submitBtn, handleSubmit, () =>
