@@ -135,12 +135,17 @@ Utsav uses **no build step and no framework**. Everything is plain ES modules se
 │   │   ├── views/                   # User interface components & tab panels
 │   │   │   ├── new-event/           # 3-step creation wizard (intake, review, parallel generate)
 │   │   │   ├── overview/            # Overview tab metric cards (budget, timeline, feasibility)
-│   │   │   ├── assistant-drawer.js  # Floating AI assistant with diff preview modal
+│   │   │   ├── shared/              # Extracted reusable UI helpers (pill groups, empty states, copy text)
+│   │   │   │   └── ui-helpers.js    # Shared DOM helper functions
+│   │   │   ├── assistant.js         # AI assistant drawer widget & patch diff preview
 │   │   │   ├── budget-tab.js        # Budget allocation, SVG donut chart & expense logger
 │   │   │   ├── events-list.js       # Multi-event switcher view
 │   │   │   ├── guests-tab.js        # RSVP tracker with catering headcount intel
+│   │   │   ├── hero.js              # Event hero header banner
 │   │   │   ├── ideas-tab.js         # Bespoke ideas & keepsakes matrix
 │   │   │   ├── settings.js          # Currency, language & backup/restore modal
+│   │   │   ├── shell.js             # Master responsive application shell & layout
+│   │   │   ├── tabs.js              # ARIA tablist navigation component
 │   │   │   ├── tasks-tab.js         # Interactive task checklist
 │   │   │   ├── timeline-tab.js      # Back-scheduled timeline roadmap view
 │   │   │   ├── vendor-outreach-modal.js # WhatsApp/Email outreach drafter modal
@@ -304,17 +309,27 @@ Utsav targets **WCAG 2.1 AA** compliance:
 
 ---
 
-## 🧪 Testing
+## 🧪 Testing & Quality Gates
 
-Tests run with **Node.js built-in test runner** (`node --test`). No Jest, no Mocha, no heavy framework.
+Tests run with **Node.js built-in test runner** (`node --test`). Zero test frameworks, zero bloat.
+
+### Verification Chain
+
+All code commits must pass the complete 5-point quality gate:
 
 ```bash
-npm test
-# or with coverage:
-npm run test:coverage
+npm run format:check && npm run lint && npm run typecheck && npm run test:coverage && npm run audit
 ```
 
-### Summary
+| Check                  | Tool / Command          | What It Enforces                                                        |
+| ---------------------- | ----------------------- | ----------------------------------------------------------------------- |
+| **Formatting**         | `npm run format:check`  | Strict Prettier code formatting across all JS, CSS, and Markdown        |
+| **Linting**            | `npm run lint`          | ESLint rules for complexity, function size, and unused variables        |
+| **Typecheck**          | `npm run typecheck`     | TypeScript compiler (`tsc --noEmit`) checking JSDoc types               |
+| **Testing & Coverage** | `npm run test:coverage` | Built-in Node test runner verifying 147 test cases & >95% line coverage |
+| **Security Audit**     | `npm run audit`         | Zero high/critical npm vulnerabilities (`zod ^4.6.7`)                   |
+
+### Test Summary
 
 | Suite                                        | Tests   | Failures | Line Coverage                                    |
 | -------------------------------------------- | ------- | -------- | ------------------------------------------------ |
