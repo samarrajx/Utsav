@@ -143,40 +143,13 @@ export function checkRateLimit(ip, maxRequests = DEFAULT_MAX_REQUESTS_PER_WINDOW
   return true;
 }
 
-/**
- * Parse and validate JSON body with a 32 KB payload cap
- * @param {Object} req
- * @returns {Promise<Object>}
- */
-export async function parseJsonBody(req) {
-  // If already parsed by Vercel / middleware
-  if (req.body && typeof req.body === "object") {
-    const raw = JSON.stringify(req.body);
-    if (Buffer.byteLength(raw, "utf8") > MAX_BODY_BYTES) {
-      throw new HttpError("Payload Too Large", 413);
-    }
-    return req.body;
-  }
-
-  // Check content-length header if available
-  const contentLength = parseInt(req.headers?.["content-length"] || "0", 10);
-  if (contentLength > MAX_BODY_BYTES) {
+function checkPayloadSize(byteLength) {
+  if (byteLength > MAX_BODY_BYTES) {
     throw new HttpError("Payload Too Large", 413);
   }
+}
 
-  // If body is already a string
-  if (typeof req.body === "string") {
-    if (Buffer.byteLength(req.body, "utf8") > MAX_BODY_BYTES) {
-      throw new HttpError("Payload Too Large", 413);
-    }
-    try {
-      return JSON.parse(req.body);
-    } catch {
-      throw new HttpError("Invalid JSON", 400);
-    }
-  }
-
-  // Read from stream
+async function readStreamPayload(req) {
   return new Promise((resolve, reject) => {
     let raw = "";
     let totalBytes = 0;
@@ -207,6 +180,32 @@ export async function parseJsonBody(req) {
       reject(err);
     });
   });
+}
+
+/**
+ * Parse and validate JSON body with a 32 KB payload cap
+ * @param {Object} req
+ * @returns {Promise<Object>}
+ */
+export async function parseJsonBody(req) {
+  if (req.body && typeof req.body === "object") {
+    checkPayloadSize(Buffer.byteLength(JSON.stringify(req.body), "utf8"));
+    return req.body;
+  }
+
+  const contentLength = parseInt(req.headers?.["content-length"] || "0", 10);
+  checkPayloadSize(contentLength);
+
+  if (typeof req.body === "string") {
+    checkPayloadSize(Buffer.byteLength(req.body, "utf8"));
+    try {
+      return JSON.parse(req.body);
+    } catch {
+      throw new HttpError("Invalid JSON", 400);
+    }
+  }
+
+  return readStreamPayload(req);
 }
 
 /**
@@ -285,6 +284,27 @@ function handleApiError(res, req, err) {
   return sendResponse(res, status, { error: err.message || "An unexpected error occurred." });
 }
 
+function validatePayloadSchema(body, schema) {
+  if (!schema) return { success: true, data: body };
+  const parseResult = schema.safeParse(body);
+  if (!parseResult.success) {
+    return {
+      success: false,
+      errorResponse: {
+        status: 400,
+        body: {
+          error: "Validation Error",
+          details: parseResult.error.errors.map((e) => ({
+            path: e.path.join("."),
+            message: e.message
+          }))
+        }
+      }
+    };
+  }
+  return { success: true, data: parseResult.data };
+}
+
 /**
  * Wrapper for API handlers enforcing security checks and error handling
  *
@@ -313,23 +333,13 @@ export async function secureApiHandler(
     return sendResponse(res, status, { error: err.message || "Invalid payload" });
   }
 
-  let validatedData = body;
-  if (schema) {
-    const parseResult = schema.safeParse(body);
-    if (!parseResult.success) {
-      return sendResponse(res, 400, {
-        error: "Validation Error",
-        details: parseResult.error.errors.map((e) => ({
-          path: e.path.join("."),
-          message: e.message
-        }))
-      });
-    }
-    validatedData = parseResult.data;
+  const validation = validatePayloadSchema(body, schema);
+  if (!validation.success) {
+    return sendResponse(res, validation.errorResponse.status, validation.errorResponse.body);
   }
 
   try {
-    const result = await handler(validatedData, { req, res });
+    const result = await handler(validation.data, { req, res });
     return sendResponse(res, 200, result);
   } catch (err) {
     return handleApiError(res, req, err);

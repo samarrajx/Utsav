@@ -16,23 +16,8 @@ function isContextComplete(data) {
   return required.every((f) => data[f] !== undefined && data[f] !== null && data[f] !== "");
 }
 
-async function queryMissingQuestions(data, res) {
-  const { type, city, budget, guests, date, currency, mustHaves, language } = data;
-  const modelName = process.env.GEMINI_MODEL || DEFAULT_GEMINI_MODEL;
-  const cacheKey = generateCacheKey(
-    "intake",
-    { type, city, budget, guests, date, currency, mustHaves, language },
-    modelName
-  );
-  const cached = apiResponseCache.get(cacheKey);
-
-  if (cached) {
-    if (res?.setHeader) res.setHeader("X-Cache", "HIT");
-    return cached;
-  }
-  if (res?.setHeader) res.setHeader("X-Cache", "MISS");
-
-  const systemInstruction = `You are the smart intake assistant for Utsav, an AI Celebration and Event Planner.
+function buildIntakeSystemInstruction(language) {
+  return `You are the smart intake assistant for Utsav, an AI Celebration and Event Planner.
 Analyze the provided event details. Determine what critical missing information is required before planning.
 Only ask about missing essentials (e.g., target guest count, approximate budget, preferred city/region, or date window/season).
 Ask at most 4 concise, empathetic questions.
@@ -49,10 +34,26 @@ Format your response strictly as JSON conforming to:
     }
   ]
 }`;
+}
+
+async function queryMissingQuestions(data, res) {
+  const { type, city, budget, guests, date, currency, mustHaves, language } = data;
+  const modelName = process.env.GEMINI_MODEL || DEFAULT_GEMINI_MODEL;
+  const payloadToCache = { type, city, budget, guests, date, currency, mustHaves, language };
+  const cacheKey = generateCacheKey("intake", payloadToCache, modelName);
+  const cached = apiResponseCache.get(cacheKey);
+
+  if (cached) {
+    if (res?.setHeader) res.setHeader("X-Cache", "HIT");
+    return cached;
+  }
+  if (res?.setHeader) res.setHeader("X-Cache", "MISS");
+
+  const systemInstruction = buildIntakeSystemInstruction(language);
 
   const aiResponse = await callGeminiStructured({
     systemInstruction,
-    data: { type, city, budget, guests, date, currency, mustHaves, language },
+    data: payloadToCache,
     prompt: "Identify missing context and ask at most 4 essential questions to unlock planning.",
     responseSchema: intakeOutputSchema,
     maxOutputTokens: 512

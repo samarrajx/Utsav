@@ -21,24 +21,8 @@ import {
 } from "../web/js/engine/index.js";
 import { apiResponseCache, generateCacheKey } from "./_lib/cache.js";
 
-async function generateCoreSection(data, template) {
-  const {
-    type,
-    title,
-    date,
-    city,
-    countryCode = "IN",
-    currency = "INR",
-    budget,
-    guests,
-    mustHaves,
-    language = "en"
-  } = data;
-  const baselineCategories = allocateBudget(budget, template.defaultWeights);
-  const baselineMilestones = scheduleMilestones(date, template.milestones);
-  const feasibility = checkFeasibility({ type, budget, currency, guests, city, date, countryCode });
-
-  const systemInstruction = `You are the lead planner at Utsav.
+function buildCoreSystemInstruction({ type, city, mustHaves, feasibility, language, date }) {
+  return `You are the lead planner at Utsav.
 Refine and personalize the provided budget categories and milestone roadmap for a ${type} celebration in ${city}.
 Incorporate the user's must-haves: "${mustHaves || "None"}".
 Feasibility Band: ${feasibility.band} (${feasibility.summary}).
@@ -66,6 +50,40 @@ CRITICAL REQUIREMENTS:
     }
   ]
 }`;
+}
+
+function reconcileBudgetPlanned(budget, aiCategories) {
+  const reallocated = allocateBudget(budget, aiCategories);
+  aiCategories.forEach((cat, idx) => {
+    cat.planned = reallocated[idx].planned;
+  });
+}
+
+async function generateCoreSection(data, template) {
+  const {
+    type,
+    title,
+    date,
+    city,
+    countryCode = "IN",
+    currency = "INR",
+    budget,
+    guests,
+    mustHaves,
+    language = "en"
+  } = data;
+  const baselineCategories = allocateBudget(budget, template.defaultWeights);
+  const baselineMilestones = scheduleMilestones(date, template.milestones);
+  const feasibility = checkFeasibility({ type, budget, currency, guests, city, date, countryCode });
+
+  const systemInstruction = buildCoreSystemInstruction({
+    type,
+    city,
+    mustHaves,
+    feasibility,
+    language,
+    date
+  });
 
   const aiResponse = await callGeminiStructured({
     systemInstruction,
@@ -86,18 +104,12 @@ CRITICAL REQUIREMENTS:
     maxOutputTokens: 2048
   });
 
-  const reallocated = allocateBudget(budget, aiResponse.categories);
-  aiResponse.categories.forEach((cat, idx) => {
-    cat.planned = reallocated[idx].planned;
-  });
-
+  reconcileBudgetPlanned(budget, aiResponse.categories);
   return aiResponse;
 }
 
-async function generateVendorsSection(data, template) {
-  const { type, date, city, budget, currency = "INR", guests, mustHaves, language = "en" } = data;
-
-  const systemInstruction = `You are a seasoned vendor manager at Utsav.
+function buildVendorsSystemInstruction({ type, city, date, guests, budget, currency, mustHaves, language }) {
+  return `You are a seasoned vendor manager at Utsav.
 Produce a vendor checklist tailored to a ${type} in ${city} on ${date} with ${guests} guests and ${budget} ${currency} budget.
 Incorporate must-haves: "${mustHaves || "None"}".
 Language: ${language}.
@@ -116,6 +128,20 @@ Format your response strictly as JSON conforming to:
     }
   ]
 }`;
+}
+
+async function generateVendorsSection(data, template) {
+  const { type, date, city, budget, currency = "INR", guests, mustHaves, language = "en" } = data;
+  const systemInstruction = buildVendorsSystemInstruction({
+    type,
+    city,
+    date,
+    guests,
+    budget,
+    currency,
+    mustHaves,
+    language
+  });
 
   return callGeminiStructured({
     systemInstruction,
@@ -135,20 +161,8 @@ Format your response strictly as JSON conforming to:
   });
 }
 
-async function generateIdeasSection(data) {
-  const {
-    type,
-    title,
-    date,
-    city,
-    budget,
-    currency = "INR",
-    guests,
-    mustHaves,
-    language = "en"
-  } = data;
-
-  const systemInstruction = `You are the creative director at Utsav.
+function buildIdeasSystemInstruction({ type, city, mustHaves, language }) {
+  return `You are the creative director at Utsav.
 Brainstorm 3 to 5 memorable, high-impact celebration ideas specifically tailored for this ${type} in ${city}.
 Connect each idea directly to the host's context and must-haves: "${mustHaves || "None"}".
 Language: ${language}.
@@ -165,6 +179,22 @@ Format your response strictly as JSON conforming to:
     }
   ]
 }`;
+}
+
+async function generateIdeasSection(data) {
+  const {
+    type,
+    title,
+    date,
+    city,
+    budget,
+    currency = "INR",
+    guests,
+    mustHaves,
+    language = "en"
+  } = data;
+
+  const systemInstruction = buildIdeasSystemInstruction({ type, city, mustHaves, language });
 
   return callGeminiStructured({
     systemInstruction,
@@ -184,7 +214,7 @@ const SECTION_GENERATORS = {
 export default async function handler(req, res) {
   const querySection = req.query?.section;
   if (querySection && req.body && typeof req.body === "object" && !req.body.section) {
-    req.body.section = querySection;
+    req.body = { ...req.body, section: querySection };
   }
 
   return secureApiHandler(req, res, {
