@@ -101,6 +101,68 @@ Utsav uses **no build step and no framework**. Everything is plain ES modules se
 
 ## 🧠 "Model Judges, Code Calculates"
 
+## 📁 Project Structure
+
+```
+.
+├── api/                             # Serverless backend functions (Vercel Node.js runtime)
+│   ├── _lib/                        # Shared server utilities
+│   │   ├── cache.js                 # In-memory SHA-256 LRU cache with TTL eviction
+│   │   ├── gemini.js                # Resilient Google Gemini client with retry & schemas
+│   │   ├── schemas.js               # Strict Zod schemas for request/response validation
+│   │   ├── security.js              # Rate limiter, host origin checker, JSON payload parser
+│   │   └── tools.js                 # Deterministic function-calling tools for model loop
+│   ├── assist.js                    # POST /api/assist (Interactive assistant & patch generator)
+│   ├── critique.js                  # POST /api/critique (Blindspot review & risk auditor)
+│   ├── intake.js                    # POST /api/intake (Conversational form & follow-up questions)
+│   ├── ping.js                      # GET /api/ping (Health check endpoint)
+│   ├── plan.js                      # POST /api/plan (Parallel section plan generator)
+│   └── vendor-message.js            # POST /api/vendor-message (Outreach message drafter)
+├── web/                             # Zero-build static frontend (vanilla ES modules)
+│   ├── css/
+│   │   └── style.css                # Terracotta design system, responsive layout & tokens
+│   ├── js/
+│   │   ├── engine/                  # Deterministic mathematical & business logic modules
+│   │   │   ├── baseline.js          # Offline fallback plan generator
+│   │   │   ├── benchmarks.js        # City-tier, seasonal & event-type cost benchmarks
+│   │   │   ├── catering.js          # Show-up formula & headcount food buffer calculator
+│   │   │   ├── dates.js             # Milestone back-scheduling & date math
+│   │   │   ├── feasibility.js       # 4-band budget & guest feasibility evaluator
+│   │   │   ├── ics.js               # RFC 5545 iCalendar export generator
+│   │   │   ├── money.js             # Hamilton-Hare largest-remainder budget allocator
+│   │   │   ├── patch.js             # 9-op JSON patch validator & applicator
+│   │   │   └── templates.js         # Event types, milestones & category structures
+│   │   ├── views/                   # User interface components & tab panels
+│   │   │   ├── new-event/           # 3-step creation wizard (intake, review, parallel generate)
+│   │   │   ├── overview/            # Overview tab metric cards (budget, timeline, feasibility)
+│   │   │   ├── assistant-drawer.js  # Floating AI assistant with diff preview modal
+│   │   │   ├── budget-tab.js        # Budget allocation, SVG donut chart & expense logger
+│   │   │   ├── events-list.js       # Multi-event switcher view
+│   │   │   ├── guests-tab.js        # RSVP tracker with catering headcount intel
+│   │   │   ├── ideas-tab.js         # Bespoke ideas & keepsakes matrix
+│   │   │   ├── settings.js          # Currency, language & backup/restore modal
+│   │   │   ├── tasks-tab.js         # Interactive task checklist
+│   │   │   ├── timeline-tab.js      # Back-scheduled timeline roadmap view
+│   │   │   ├── vendor-outreach-modal.js # WhatsApp/Email outreach drafter modal
+│   │   │   └── vendors-tab.js       # Vendor status chips, quotes & checklist
+│   │   ├── api.js                   # Client HTTP fetch wrapper with AbortController
+│   │   ├── dom.js                   # Lightweight reactive DOM creation helpers
+│   │   ├── main.js                  # App bootstrap, header/sidebar shell & tab mounting
+│   │   ├── router.js                # Hash-based SPA router with history management
+│   │   ├── storage.js               # Resilient, schema-versioned localStorage manager
+│   │   └── types.js                 # JSDoc type definitions
+│   └── index.html                   # HTML5 application shell & accessible landmarks
+└── tests/                           # Unit, integration & schema validation test suites
+    ├── api/                         # Endpoint, security, cache & Gemini client tests
+    ├── engine/                      # Arithmetic, allocation, date & patch tests
+    ├── frontend/                    # Storage, router, wizard & tab view tests
+    └── helpers/                     # Mock DOM & lightweight test utilities
+```
+
+---
+
+## 🧠 "Model Judges, Code Calculates"
+
 This is the central design principle of Utsav:
 
 > **The AI model makes qualitative judgements. Deterministic engine code does all arithmetic.**

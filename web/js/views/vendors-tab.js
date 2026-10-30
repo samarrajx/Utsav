@@ -245,11 +245,7 @@ function buildVendorFormFields() {
       ])
     ]),
     el("div", { className: "form-group flex-1" }, [
-      el(
-        "label",
-        { htmlFor: "new-vendor-bookby", className: "form-label" },
-        "Book-By Deadline"
-      ),
+      el("label", { htmlFor: "new-vendor-bookby", className: "form-label" }, "Book-By Deadline"),
       el("input", { id: "new-vendor-bookby", type: "date", className: "form-input" })
     ])
   ]);

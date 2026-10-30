@@ -33,7 +33,9 @@ function allocateZeroWeights(totalBudget, categories) {
 function distributeDiscrepancy(items, initialDiscrepancy) {
   let discrepancy = initialDiscrepancy;
   // Sort by largest remainder descending, tie-break by original index
-  items.sort((a, b) => (b.remainder !== a.remainder ? b.remainder - a.remainder : a.index - b.index));
+  items.sort((a, b) =>
+    b.remainder !== a.remainder ? b.remainder - a.remainder : a.index - b.index
+  );
 
   for (let i = 0; i < items.length && discrepancy > 0; i++) {
     items[i].floor += 1;

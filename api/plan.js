@@ -108,7 +108,16 @@ async function generateCoreSection(data, template) {
   return aiResponse;
 }
 
-function buildVendorsSystemInstruction({ type, city, date, guests, budget, currency, mustHaves, language }) {
+function buildVendorsSystemInstruction({
+  type,
+  city,
+  date,
+  guests,
+  budget,
+  currency,
+  mustHaves,
+  language
+}) {
   return `You are a seasoned vendor manager at Utsav.
 Produce a vendor checklist tailored to a ${type} in ${city} on ${date} with ${guests} guests and ${budget} ${currency} budget.
 Incorporate must-haves: "${mustHaves || "None"}".

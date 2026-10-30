@@ -202,10 +202,7 @@ function createCategoryTableRow(cat, idx, currency) {
             icon("alertTriangle"),
             ` Over by ${formatCompactCurrency(Math.abs(catRemaining), currency)}`
           ])
-        : el("span", { className: "badge-status is-ok" }, [
-            icon("checkCircle"),
-            " On track"
-          ])
+        : el("span", { className: "badge-status is-ok" }, [icon("checkCircle"), " On track"])
     ])
   ]);
 }
