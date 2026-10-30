@@ -14,6 +14,19 @@ function createFeasibilityBandBadge(band) {
   return el("span", { className: `band-chip band-${band}` }, bandLabels[band] || band);
 }
 
+const TRADEOFF_TYPE_LABELS = {
+  reduce_guests: "Guest Count",
+  lower_per_plate: "Catering",
+  shift_season: "Timeline",
+  allocate_buffer: "Contingency"
+};
+
+function formatTradeOffLabel(to) {
+  if (to.category) return `${to.category}: `;
+  const label = TRADEOFF_TYPE_LABELS[to.type];
+  return label ? `${label}: ` : "";
+}
+
 export function renderFeasibilityCard(event) {
   return el("div", { className: "card feasibility-card" }, [
     el("div", { className: "section-header-row" }, [
@@ -34,9 +47,10 @@ export function renderFeasibilityCard(event) {
           el(
             "ul",
             {},
-            event.feasibility.tradeOffs.map((to) =>
-              el("li", {}, [el("strong", {}, `${to.category}: `), to.detail])
-            )
+            event.feasibility.tradeOffs.map((to) => {
+              const label = formatTradeOffLabel(to);
+              return el("li", {}, [label ? el("strong", {}, label) : null, to.detail]);
+            })
           )
         ])
       : null

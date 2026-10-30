@@ -94,9 +94,12 @@
 
 /**
  * @typedef {Object} TradeOff
- * @property {string} category
+ * @property {string} type
  * @property {string} detail
- * @property {number} savings
+ * @property {string} [category]
+ * @property {number} [targetGuests]
+ * @property {number} [targetPerPlate]
+ * @property {number} [savings]
  */
 
 /**
