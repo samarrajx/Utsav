@@ -132,15 +132,30 @@ Utsav uses **no build step and no framework**. Everything is plain ES modules se
 │   │   │   ├── money.js             # Hamilton-Hare largest-remainder budget allocator
 │   │   │   ├── patch.js             # 9-op JSON patch validator & applicator
 │   │   │   └── templates.js         # Event types, milestones & category structures
+│   │   ├── storage/                 # Decomposed storage subsystem modules
+│   │   │   ├── backup.js            # JSON import/export and file download triggers
+│   │   │   ├── core.js              # Low-level localStorage wrapper, keys, and memory fallback
+│   │   │   ├── events.js            # Event CRUD, 300ms debounce persistence, and active event
+│   │   │   └── settings.js          # User preferences persistence (language, country, currency)
 │   │   ├── views/                   # User interface components & tab panels
+│   │   │   ├── budget/              # Decomposed budget tab submodules
+│   │   │   │   ├── category-table.js # Category budget breakdown table & overspend badges
+│   │   │   │   ├── constants.js     # Color palettes and visual tokens
+│   │   │   │   ├── donut-chart.js   # Pure SVG donut chart & color-coded legend
+│   │   │   │   └── expense-logger.js # Recorded expenses table & new expense form
+│   │   │   ├── guests/              # Decomposed guest list submodules
+│   │   │   │   ├── catering-card.js # Catering maths intelligence card & stacked RSVP bar
+│   │   │   │   ├── guest-filter.js  # Filter pill selector & search bar
+│   │   │   │   ├── guest-form.js    # Add guest form builder & validation
+│   │   │   │   └── guest-table.js   # Attendee directory table with status selects
 │   │   │   ├── new-event/           # 3-step creation wizard (intake, review, parallel generate)
 │   │   │   ├── overview/            # Overview tab metric cards (budget, timeline, feasibility)
 │   │   │   ├── shared/              # Extracted reusable UI helpers (pill groups, empty states, copy text)
 │   │   │   │   └── ui-helpers.js    # Shared DOM helper functions
 │   │   │   ├── assistant.js         # AI assistant drawer widget & patch diff preview
-│   │   │   ├── budget-tab.js        # Budget allocation, SVG donut chart & expense logger
+│   │   │   ├── budget-tab.js        # Budget orchestrator view
 │   │   │   ├── events-list.js       # Multi-event switcher view
-│   │   │   ├── guests-tab.js        # RSVP tracker with catering headcount intel
+│   │   │   ├── guests-tab.js        # Guests orchestrator view
 │   │   │   ├── hero.js              # Event hero header banner
 │   │   │   ├── ideas-tab.js         # Bespoke ideas & keepsakes matrix
 │   │   │   ├── settings.js          # Currency, language & backup/restore modal
@@ -154,7 +169,7 @@ Utsav uses **no build step and no framework**. Everything is plain ES modules se
 │   │   ├── dom.js                   # Lightweight reactive DOM creation helpers
 │   │   ├── main.js                  # App bootstrap, header/sidebar shell & tab mounting
 │   │   ├── router.js                # Hash-based SPA router with history management
-│   │   ├── storage.js               # Resilient, schema-versioned localStorage manager
+│   │   ├── storage.js               # Clean facade re-exporting storage subsystem
 │   │   └── types.js                 # JSDoc type definitions
 │   └── index.html                   # HTML5 application shell & accessible landmarks
 └── tests/                           # Unit, integration & schema validation test suites
