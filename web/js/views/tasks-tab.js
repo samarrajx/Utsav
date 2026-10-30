@@ -7,6 +7,7 @@
 
 import { el, icon } from "../dom.js";
 import { formatDisplayDate, daysBetween } from "../engine/dates.js";
+import { createFilterPillGroup, createEmptyState } from "./shared/ui-helpers.js";
 
 function createTaskProgressBar(completed, total) {
   const percentDone = total > 0 ? Math.round((completed / total) * 100) : 0;
@@ -35,58 +36,19 @@ function createTaskProgressBar(completed, total) {
   return { counterText, progressFill, progressBar };
 }
 
-function createFilterControls(onFilterChange) {
-  return el(
-    "div",
-    { className: "tasks-filter-group", role: "group", "aria-label": "Filter tasks" },
-    [
-      el(
-        "button",
-        {
-          type: "button",
-          className: "filter-btn is-active",
-          onClick: (e) => {
-            e.currentTarget.parentElement
-              .querySelectorAll(".filter-btn")
-              .forEach((b) => b.classList.remove("is-active"));
-            e.currentTarget.classList.add("is-active");
-            onFilterChange("all");
-          }
-        },
-        "All Tasks"
-      ),
-      el(
-        "button",
-        {
-          type: "button",
-          className: "filter-btn",
-          onClick: (e) => {
-            e.currentTarget.parentElement
-              .querySelectorAll(".filter-btn")
-              .forEach((b) => b.classList.remove("is-active"));
-            e.currentTarget.classList.add("is-active");
-            onFilterChange("incomplete");
-          }
-        },
-        "Pending"
-      ),
-      el(
-        "button",
-        {
-          type: "button",
-          className: "filter-btn",
-          onClick: (e) => {
-            e.currentTarget.parentElement
-              .querySelectorAll(".filter-btn")
-              .forEach((b) => b.classList.remove("is-active"));
-            e.currentTarget.classList.add("is-active");
-            onFilterChange("completed");
-          }
-        },
-        "Completed"
-      )
-    ]
-  );
+function createFilterControls(activeFilter, onFilterChange) {
+  const items = [
+    { key: "all", label: "All Tasks" },
+    { key: "incomplete", label: "Pending" },
+    { key: "completed", label: "Completed" }
+  ];
+  return createFilterPillGroup({
+    items,
+    activeKey: activeFilter,
+    ariaLabel: "Filter tasks",
+    className: "tasks-filter-group",
+    onSelect: onFilterChange
+  });
 }
 
 function createTaskItemNode(task, now, { onToggle, onDelete }) {
@@ -224,16 +186,12 @@ function renderTaskListContent(
   taskListContainer.replaceChildren();
 
   if (filteredTasks.length === 0) {
+    const emptyMsg =
+      activeFilter === "completed"
+        ? "No completed tasks yet. Check off items as you make progress!"
+        : "No tasks found matching your filter.";
     taskListContainer.appendChild(
-      el("div", { className: "card empty-state-card" }, [
-        el(
-          "p",
-          { className: "empty-state-text" },
-          activeFilter === "completed"
-            ? "No completed tasks yet. Check off items as you make progress!"
-            : "No tasks found matching your filter."
-        )
-      ])
+      el("div", { className: "card empty-state-card" }, [createEmptyState(emptyMsg)])
     );
     return;
   }
@@ -305,7 +263,7 @@ export function renderTasksTab(event, { onUpdate, announce }) {
     tasks.length
   );
 
-  const filterControls = createFilterControls((filter) => {
+  const filterControls = createFilterControls(activeFilter, (filter) => {
     activeFilter = filter;
     renderTaskList();
   });

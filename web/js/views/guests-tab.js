@@ -12,6 +12,7 @@ import {
   DEFAULT_SHOW_UP_RATE,
   DEFAULT_FOOD_BUFFER_PERCENT
 } from "../engine/catering.js";
+import { createFilterPillGroup, createEmptyState } from "./shared/ui-helpers.js";
 
 function createRsvpStackedBar(attendance, total) {
   const safeTotal = Math.max(1, total);
@@ -118,21 +119,12 @@ function createFilterPills(activeFilter, guestList, attendance, onSelect) {
     { key: "pending", label: "Pending", count: attendance.pending },
     { key: "declined", label: "Declined", count: attendance.declined }
   ];
-  return el(
-    "div",
-    { className: "filter-pills-group", role: "group", "aria-label": "Filter guest directory" },
-    items.map(({ key, label, count }) =>
-      el(
-        "button",
-        {
-          type: "button",
-          className: `filter-btn ${activeFilter === key ? "is-active" : ""}`,
-          onClick: () => onSelect(key)
-        },
-        `${label} (${count})`
-      )
-    )
-  );
+  return createFilterPillGroup({
+    items,
+    activeKey: activeFilter,
+    ariaLabel: "Filter guest directory",
+    onSelect
+  });
 }
 
 function createGuestTableRow(guest, guestList, { onUpdate, renderView, announce, event }) {
@@ -274,15 +266,11 @@ function createAddGuestForm(guestList, context) {
 function createGuestTableCard(filteredGuests, guestList, context) {
   const tableContainer = el("div", { className: "card guest-list-card" });
   if (filteredGuests.length === 0) {
-    tableContainer.appendChild(
-      el(
-        "p",
-        { className: "empty-state-text" },
-        guestList.length === 0
-          ? "No guests added yet. Use the form below to begin tracking your attendee RSVPs."
-          : "No guests found matching your filter or search query."
-      )
-    );
+    const emptyMsg =
+      guestList.length === 0
+        ? "No guests added yet. Use the form below to begin tracking your attendee RSVPs."
+        : "No guests found matching your filter or search query.";
+    tableContainer.appendChild(createEmptyState(emptyMsg));
     return tableContainer;
   }
 

@@ -6,6 +6,7 @@
  */
 
 import { el, icon } from "../dom.js";
+import { createEmptyState } from "./shared/ui-helpers.js";
 
 const SECTION_ICONS = {
   decor: "sparkles",
@@ -233,16 +234,11 @@ export function renderIdeasTab(event, { onUpdate, announce }) {
 
     const cardsGrid = el("div", { className: "ideas-grid" });
     if (filteredIdeas.length === 0) {
+      const emptyMsg = showFavoritesOnly
+        ? "No saved favorite ideas yet. Click the heart on any idea card to pin it here!"
+        : "No ideas found in this category.";
       cardsGrid.appendChild(
-        el("div", { className: "card empty-state-card flex-full" }, [
-          el(
-            "p",
-            { className: "empty-state-text" },
-            showFavoritesOnly
-              ? "No saved favorite ideas yet. Click the heart on any idea card to pin it here!"
-              : "No ideas found in this category."
-          )
-        ])
+        el("div", { className: "card empty-state-card flex-full" }, [createEmptyState(emptyMsg)])
       );
     } else {
       filteredIdeas.forEach((idea) => {

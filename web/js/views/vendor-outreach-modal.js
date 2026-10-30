@@ -8,6 +8,7 @@
 import { el, icon } from "../dom.js";
 import { fetchVendorMessage } from "../api.js";
 import { formatDisplayDate } from "../engine/dates.js";
+import { copyTextWithFeedback } from "./shared/ui-helpers.js";
 
 function buildOfflineDraft(channel, vendor, event) {
   const formattedDate = formatDisplayDate(event.date);
@@ -206,17 +207,11 @@ function createModalFooter(isDrafting, activeChannel, subject, body, closeModal,
         type: "button",
         className: "btn btn-secondary btn-copy-message",
         disabled: isDrafting,
-        onClick: (e) => {
-          if (typeof navigator !== "undefined" && navigator.clipboard) {
-            navigator.clipboard.writeText(textToCopy);
-          }
-          const origText = e.currentTarget.textContent;
-          e.currentTarget.textContent = "✓ Copied to Clipboard!";
-          announce?.("Vendor inquiry message copied to clipboard.");
-          setTimeout(() => {
-            if (e.currentTarget) e.currentTarget.textContent = origText;
-          }, 2000);
-        }
+        onClick: (e) =>
+          copyTextWithFeedback(e.currentTarget, textToCopy, {
+            successLabel: "✓ Copied to Clipboard!",
+            announce: () => announce?.("Vendor inquiry message copied to clipboard.")
+          })
       },
       [icon("checklist"), "Copy to Clipboard"]
     ),

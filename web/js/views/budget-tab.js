@@ -8,6 +8,7 @@
 import { el, icon } from "../dom.js";
 import { formatCurrency, formatCompactCurrency } from "../engine/money.js";
 import { formatDisplayDate } from "../engine/dates.js";
+import { createSectionHeader } from "./shared/ui-helpers.js";
 
 const CATEGORY_COLORS = [
   "#6D2E46", // Primary maroon
@@ -246,10 +247,7 @@ function createExpensesCard(
   { onUpdate, renderView, announce, event }
 ) {
   return el("div", { className: "card expenses-logger-card" }, [
-    el("div", { className: "section-header-row" }, [
-      el("h3", { className: "card-title-sm" }, [icon("checklist"), "Recorded Expenses"]),
-      el("span", { className: "counter-chip" }, `${expenses.length} logged`)
-    ]),
+    createSectionHeader("Recorded Expenses", "checklist", `${expenses.length} logged`),
     expenses.length > 0
       ? el("div", { className: "table-responsive-wrapper" }, [
           el(
