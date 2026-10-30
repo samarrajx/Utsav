@@ -6,7 +6,7 @@
 
 [![Live on Vercel](https://img.shields.io/badge/Live-utsav--tau.vercel.app-brightgreen?style=for-the-badge&logo=vercel)](https://utsav-tau.vercel.app/)
 [![Tests](https://img.shields.io/badge/Tests-147%20passed%20%7C%200%20failed-success?style=for-the-badge&logo=node.js)](./tests/)
-[![Coverage](https://img.shields.io/badge/Coverage-96.1%25%20line%20%7C%2080.8%25%20branch-blue?style=for-the-badge)](./tests/)
+[![Coverage](https://img.shields.io/badge/Coverage-94.8%25%20line%20%7C%2075.6%25%20branch-blue?style=for-the-badge)](./tests/)
 [![Vanilla JS](https://img.shields.io/badge/Vanilla-ES%20Modules-yellow?style=for-the-badge&logo=javascript)](./web/)
 [![Model](https://img.shields.io/badge/Gemini-2.5%20Flash-orange?style=for-the-badge&logo=google)](https://ai.google.dev/)
 
@@ -331,31 +331,31 @@ npm run format:check && npm run lint && npm run typecheck && npm run test:covera
 
 ### Test Summary
 
-| Suite                                        | Tests   | Failures | Line Coverage                                    |
-| -------------------------------------------- | ------- | -------- | ------------------------------------------------ |
-| `tests/engine/money.test.js`                 | 9       | 0        | 99.4%                                            |
-| `tests/engine/dates.test.js`                 | 8       | 0        | 99.4%                                            |
-| `tests/engine/catering.test.js`              | 5       | 0        | 100.0%                                           |
-| `tests/engine/feasibility.test.js`           | 5       | 0        | 100.0%                                           |
-| `tests/engine/patch.test.js`                 | 11      | 0        | 96.4%                                            |
-| `tests/engine/benchmarks.test.js`            | 9       | 0        | 98.5%                                            |
-| `tests/engine/templates.test.js`             | 4       | 0        | 100.0%                                           |
-| `tests/engine/baseline.test.js`              | 3       | 0        | 97.1%                                            |
-| `tests/engine/ics.test.js`                   | 4       | 0        | 98.5%                                            |
-| `tests/api/endpoints.test.js`                | 8       | 0        | 99.0%                                            |
-| `tests/api/gemini.test.js`                   | 8       | 0        | 91.3%                                            |
-| `tests/api/security.test.js`                 | 14      | 0        | 83.1%                                            |
-| `tests/api/cache.test.js`                    | 6       | 0        | 100.0%                                           |
-| `tests/api/tools.test.js`                    | 6       | 0        | 100.0%                                           |
-| `tests/ping.test.js`                         | 2       | 0        | 100.0%                                           |
-| `tests/frontend/router.test.js`              | 6       | 0        | 97.7%                                            |
-| `tests/frontend/storage.test.js`             | 12      | 0        | 81.8%                                            |
-| `tests/frontend/new-event.test.js`           | 8       | 0        | 95.6%                                            |
-| `tests/frontend/dashboard-tabs.test.js`      | 13      | 0        | 96.2%                                            |
-| `tests/frontend/assistant-and-modal.test.js` | 6       | 0        | 91.6%                                            |
-| **Total**                                    | **147** | **0**    | **96.1% line · 80.8% branch (all source files)** |
+| Suite                                        | Tests   | Failures | Line Coverage                               |
+| -------------------------------------------- | ------- | -------- | ------------------------------------------- |
+| `tests/engine/money.test.js`                 | 9       | 0        | 99.4%                                       |
+| `tests/engine/dates.test.js`                 | 8       | 0        | 99.4%                                       |
+| `tests/engine/catering.test.js`              | 5       | 0        | 100.0%                                      |
+| `tests/engine/feasibility.test.js`           | 5       | 0        | 100.0%                                      |
+| `tests/engine/patch.test.js`                 | 11      | 0        | 96.4%                                       |
+| `tests/engine/benchmarks.test.js`            | 9       | 0        | 98.5%                                       |
+| `tests/engine/templates.test.js`             | 4       | 0        | 100.0%                                      |
+| `tests/engine/baseline.test.js`              | 3       | 0        | 97.1%                                       |
+| `tests/engine/ics.test.js`                   | 4       | 0        | 98.5%                                       |
+| `tests/api/endpoints.test.js`                | 8       | 0        | 99.0%                                       |
+| `tests/api/gemini.test.js`                   | 8       | 0        | 91.3%                                       |
+| `tests/api/security.test.js`                 | 14      | 0        | 83.1%                                       |
+| `tests/api/cache.test.js`                    | 6       | 0        | 100.0%                                      |
+| `tests/api/tools.test.js`                    | 6       | 0        | 100.0%                                      |
+| `tests/ping.test.js`                         | 2       | 0        | 100.0%                                      |
+| `tests/frontend/router.test.js`              | 6       | 0        | 97.7%                                       |
+| `tests/frontend/storage.test.js`             | 12      | 0        | 81.8%                                       |
+| `tests/frontend/new-event.test.js`           | 8       | 0        | 95.6%                                       |
+| `tests/frontend/dashboard-tabs.test.js`      | 13      | 0        | 96.2%                                       |
+| `tests/frontend/assistant-and-modal.test.js` | 6       | 0        | 91.6%                                       |
+| **Total**                                    | **147** | **0**    | **94.80% line · 75.64% branch (all files)** |
 
-> **Coverage Note:** The test suite achieves **96.1% line coverage** and **80.8% branch coverage** across all application source files (and **96.8% line coverage** across the core planning engine and serverless API modules). Measured directly using Node.js built-in V8 test coverage with zero external test dependencies.
+> **Coverage Note:** The test suite achieves **94.80% line coverage** and **75.64% branch coverage** across all files. Measured directly using Node.js built-in V8 test coverage with zero external test dependencies.
 
 ---
 
