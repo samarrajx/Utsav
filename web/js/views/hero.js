@@ -8,6 +8,26 @@
 import { el, icon, renderFloralMotif } from "../dom.js";
 import { formatDisplayDate, daysBetween } from "../engine/dates.js";
 
+function computeCountdownBadge(eventDate) {
+  const daysRemaining = daysBetween(new Date(), eventDate || new Date());
+  if (daysRemaining > 0) {
+    return {
+      text: `${daysRemaining} days to go`,
+      badgeClass: "hero-badge badge-days-upcoming"
+    };
+  }
+  if (daysRemaining === 0) {
+    return {
+      text: "Today is the celebration!",
+      badgeClass: "hero-badge badge-days-upcoming"
+    };
+  }
+  return {
+    text: `${Math.abs(daysRemaining)} days ago`,
+    badgeClass: "hero-badge badge-days-past"
+  };
+}
+
 /**
  * Render the celebratory event hero banner
  *
@@ -17,16 +37,7 @@ import { formatDisplayDate, daysBetween } from "../engine/dates.js";
  * @returns {HTMLElement}
  */
 export function renderHeroBanner(event, { onEdit } = {}) {
-  const daysRemaining = daysBetween(new Date(), event.date || new Date());
-  const daysText =
-    daysRemaining > 0
-      ? `${daysRemaining} days to go`
-      : daysRemaining === 0
-        ? "Today is the celebration!"
-        : `${Math.abs(daysRemaining)} days ago`;
-
-  const daysBadgeClass =
-    daysRemaining >= 0 ? "hero-badge badge-days-upcoming" : "hero-badge badge-days-past";
+  const { text: daysText, badgeClass: daysBadgeClass } = computeCountdownBadge(event.date);
 
   const heroContainer = el(
     "section",

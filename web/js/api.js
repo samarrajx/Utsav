@@ -51,6 +51,23 @@ export function getAssistAbortSignal() {
   return assistAbortController.signal;
 }
 
+function linkAbortSignal(controller, signal) {
+  if (!signal) return;
+  if (signal.aborted) {
+    controller.abort();
+  } else {
+    signal.addEventListener("abort", () => controller.abort(), { once: true });
+  }
+}
+
+async function parseResponseJson(res) {
+  try {
+    return await res.json();
+  } catch {
+    return { error: `HTTP ${res.status} response was not valid JSON` };
+  }
+}
+
 /**
  * Universal safe POST request wrapper
  * @param {string} endpoint - Relative path (e.g. '/api/plan')
@@ -63,14 +80,7 @@ export function getAssistAbortSignal() {
 export async function postApi(endpoint, payload, timeoutMs = API_TIMEOUT_MS, options = {}) {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeoutMs);
-
-  if (options.signal) {
-    if (options.signal.aborted) {
-      controller.abort();
-    } else {
-      options.signal.addEventListener("abort", () => controller.abort(), { once: true });
-    }
-  }
+  linkAbortSignal(controller, options.signal);
 
   try {
     const res = await fetch(endpoint, {
@@ -84,13 +94,7 @@ export async function postApi(endpoint, payload, timeoutMs = API_TIMEOUT_MS, opt
     });
 
     clearTimeout(timer);
-
-    let json = {};
-    try {
-      json = await res.json();
-    } catch {
-      json = { error: `HTTP ${res.status} response was not valid JSON` };
-    }
+    const json = await parseResponseJson(res);
 
     if (!res.ok) {
       return {

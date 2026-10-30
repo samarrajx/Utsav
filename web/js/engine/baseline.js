@@ -7,7 +7,14 @@
 
 import { getEventTemplate, EVENT_TYPES } from "./templates.js";
 import { allocateBudget } from "./money.js";
-import { scheduleMilestones, addWeeks, toISODateString, parseDate } from "./dates.js";
+import {
+  scheduleMilestones,
+  addWeeks,
+  toISODateString,
+  parseDate,
+  MS_PER_DAY,
+  DAYS_PER_WEEK
+} from "./dates.js";
 import { checkFeasibility } from "./feasibility.js";
 
 const BIRTHDAY_IDEAS = [
@@ -174,58 +181,87 @@ function buildBaselineCritique(feasibility, weeksUntilEvent, type) {
  * @param {Function} [nowFn] - Clock injection for testing
  * @returns {Object} Complete event object conforming to Utsav schema v1
  */
+function normalizeBaselineParams(input, template, nowFn) {
+  const type = (input.type || EVENT_TYPES.WEDDING).toLowerCase();
+  const eventDateParsed = parseDate(input.date || addWeeks(toISODateString(nowFn()), 24));
+  const eventDateStr = toISODateString(eventDateParsed);
+  const city = (input.city || "Mumbai").trim();
+
+  return {
+    type,
+    eventDateParsed,
+    eventDateStr,
+    totalBudget: Math.max(0, Number(input.budget) || 500000),
+    targetGuests: Math.max(1, Number(input.guests) || 100),
+    currency: (input.currency || "INR").toUpperCase(),
+    city,
+    countryCode: (input.countryCode || "IN").toUpperCase(),
+    language: input.language || "en",
+    title: (input.title || `${template.label} in ${city}`).trim()
+  };
+}
+
+function extractMilestoneTasks(milestones) {
+  const tasks = [];
+  milestones.forEach((m) => {
+    (m.tasks || []).forEach((t) => tasks.push(t));
+  });
+  return tasks;
+}
+
+/**
+ * Generate an offline baseline plan from template benchmarks
+ *
+ * @param {Object} [input={}] - User preferences
+ * @param {string} [input.type='wedding']
+ * @param {string} [input.title]
+ * @param {string} [input.date]
+ * @param {string} [input.city='Mumbai']
+ * @param {string} [input.countryCode='IN']
+ * @param {string} [input.currency='INR']
+ * @param {number} [input.budget=500000]
+ * @param {number} [input.guests=100]
+ * @param {string} [input.language='en']
+ * @param {Function} [nowFn] - Clock injection for testing
+ * @returns {Object} Complete event object conforming to Utsav schema v1
+ */
 export function generateBaselinePlan(input = {}, nowFn = () => new Date()) {
   const type = (input.type || EVENT_TYPES.WEDDING).toLowerCase();
   const template = getEventTemplate(type);
+  const params = normalizeBaselineParams(input, template, nowFn);
 
-  const eventDateParsed = parseDate(input.date || addWeeks(toISODateString(nowFn()), 24));
-  const eventDateStr = toISODateString(eventDateParsed);
+  const categories = buildBaselineCategories(params.totalBudget, template);
+  const scheduledMilestones = scheduleMilestones(params.eventDateStr, template.milestones, nowFn);
+  const allTasks = extractMilestoneTasks(scheduledMilestones);
+  const vendors = buildBaselineVendors(template, params.eventDateStr);
+  const ideas = getBaselineIdeas(params.type, params.city);
 
-  const totalBudget = Math.max(0, Number(input.budget) || 500000);
-  const targetGuests = Math.max(1, Number(input.guests) || 100);
-  const currency = (input.currency || "INR").toUpperCase();
-  const city = (input.city || "Mumbai").trim();
-  const countryCode = (input.countryCode || "IN").toUpperCase();
-  const language = input.language || "en";
-  const title = (input.title || `${template.label} in ${city}`).trim();
-
-  const categories = buildBaselineCategories(totalBudget, template);
-  const scheduledMilestones = scheduleMilestones(eventDateStr, template.milestones, nowFn);
-
-  const allTasks = [];
-  scheduledMilestones.forEach((m) => {
-    (m.tasks || []).forEach((t) => allTasks.push(t));
-  });
-
-  const vendors = buildBaselineVendors(template, eventDateStr);
-  const ideas = getBaselineIdeas(type, city);
   const feasibility = checkFeasibility({
-    type,
-    budget: totalBudget,
-    currency,
-    guests: targetGuests,
-    city,
-    date: eventDateStr,
-    countryCode
+    type: params.type,
+    budget: params.totalBudget,
+    currency: params.currency,
+    guests: params.targetGuests,
+    city: params.city,
+    date: params.eventDateStr,
+    countryCode: params.countryCode
   });
 
-  const weeksUntil = Math.round(
-    (eventDateParsed.getTime() - nowFn().getTime()) / (1000 * 60 * 60 * 24 * 7)
-  );
-  const critique = buildBaselineCritique(feasibility, weeksUntil, type);
+  const msUntil = params.eventDateParsed.getTime() - nowFn().getTime();
+  const weeksUntil = Math.round(msUntil / (MS_PER_DAY * DAYS_PER_WEEK));
+  const critique = buildBaselineCritique(feasibility, weeksUntil, params.type);
 
   return {
     schemaVersion: 1,
     id: `event_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
     isBaselineFallback: true,
-    type,
-    title,
-    date: eventDateStr,
-    city,
-    countryCode,
-    currency,
-    guests: { target: targetGuests, list: [] },
-    budget: { total: totalBudget, categories },
+    type: params.type,
+    title: params.title,
+    date: params.eventDateStr,
+    city: params.city,
+    countryCode: params.countryCode,
+    currency: params.currency,
+    guests: { target: params.targetGuests, list: [] },
+    budget: { total: params.totalBudget, categories },
     expenses: [],
     milestones: scheduledMilestones,
     tasks: allTasks,
@@ -233,6 +269,6 @@ export function generateBaselinePlan(input = {}, nowFn = () => new Date()) {
     ideas,
     feasibility,
     critique,
-    language
+    language: params.language
   };
 }

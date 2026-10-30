@@ -22,19 +22,25 @@ function applyProp(element, key, val) {
 
   if (key.startsWith("on") && typeof val === "function") {
     element.addEventListener(key.substring(2).toLowerCase(), val);
-  } else if (key === "className" || key === "class") {
-    element.className = String(val);
-  } else if (key === "dataset" && typeof val === "object") {
-    Object.entries(val).forEach(([dKey, dVal]) => {
-      element.dataset[dKey] = String(dVal);
-    });
-  } else if (key === "style" && typeof val === "object") {
-    Object.assign(element.style, val);
-  } else if (BOOLEAN_PROPS.has(key)) {
-    applyBooleanProp(element, key, val);
-  } else {
-    element.setAttribute(key, String(val));
+    return;
   }
+  if (key === "className" || key === "class") {
+    element.className = String(val);
+    return;
+  }
+  if (key === "dataset" && typeof val === "object") {
+    Object.assign(element.dataset, val);
+    return;
+  }
+  if (key === "style" && typeof val === "object") {
+    Object.assign(element.style, val);
+    return;
+  }
+  if (BOOLEAN_PROPS.has(key)) {
+    applyBooleanProp(element, key, val);
+    return;
+  }
+  element.setAttribute(key, String(val));
 }
 
 function appendChildren(element, children) {

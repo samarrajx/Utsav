@@ -168,46 +168,53 @@ function createInputForm(isThinking, onSend) {
   return form;
 }
 
-function getOfflineFallbackResponse(event, queryText) {
-  const lower = queryText.toLowerCase();
-
-  if (lower.includes("catering") && (lower.includes("cheaper") || lower.includes("reduce"))) {
-    const currentWeight = event.budget?.categories?.find((c) => c.id === "catering")?.weight || 26;
-    const patch = {
+function buildCateringTrimPatch(event) {
+  const currentWeight = event.budget?.categories?.find((c) => c.id === "catering")?.weight || 26;
+  return {
+    text: "I've generated an adjustment to trim your catering budget allocation and rebalance other categories evenly.",
+    patch: {
       op: "set_category_weight",
       categoryId: "catering",
       weight: Math.max(10, currentWeight - 3)
-    };
-    return {
-      text: "I've generated an adjustment to trim your catering budget allocation and rebalance other categories evenly.",
-      patch
-    };
-  }
+    }
+  };
+}
 
-  if (lower.includes("task") || lower.includes("choreographer")) {
-    const patch = {
+function buildChoreographerTaskPatch(event) {
+  return {
+    text: "I've prepared a new milestone task for booking your sangeet choreographer.",
+    patch: {
       op: "add_task",
       title: "Book Sangeet Choreographer & Rehearsals",
       due: event.date
-    };
-    return {
-      text: "I've prepared a new milestone task for booking your sangeet choreographer.",
-      patch
-    };
-  }
+    }
+  };
+}
 
-  if (lower.includes("entry") || lower.includes("idea")) {
-    const patch = {
+function buildEntryIdeaPatch() {
+  return {
+    text: "Here is a celebration concept: a dynamic Dhol and cold-pyro walkway entry. You can accept this into your Ideas list below.",
+    patch: {
       op: "add_idea",
       section: "entertainment",
       title: "Cold Pyrotechnic Walkway Entry with Dhol Ensemble",
       whyItFits:
         "Creates a theatrical, celebratory grand entry that thrills guests and produces stunning photography."
-    };
-    return {
-      text: "Here is a celebration concept: a dynamic Dhol and cold-pyro walkway entry. You can accept this into your Ideas list below.",
-      patch
-    };
+    }
+  };
+}
+
+function getOfflineFallbackResponse(event, queryText) {
+  const lower = queryText.toLowerCase();
+
+  if (lower.includes("catering") && (lower.includes("cheaper") || lower.includes("reduce"))) {
+    return buildCateringTrimPatch(event);
+  }
+  if (lower.includes("task") || lower.includes("choreographer")) {
+    return buildChoreographerTaskPatch(event);
+  }
+  if (lower.includes("entry") || lower.includes("idea")) {
+    return buildEntryIdeaPatch();
   }
 
   return {
