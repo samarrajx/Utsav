@@ -20,6 +20,9 @@ const CATEGORY_COLORS = [
   "#8C5E58" // Earth
 ];
 
+const DONUT_SUBTEXT_COLOR = "#665057";
+const DONUT_AMOUNT_COLOR = "#6D2E46";
+
 function createBudgetKpiCard(totalBudget, totalSpent, currency) {
   const remaining = totalBudget - totalSpent;
   const isOverspent = totalSpent > totalBudget;
@@ -81,52 +84,33 @@ function createBudgetKpiCard(totalBudget, totalSpent, currency) {
   ]);
 }
 
-function createDonutChartSvg(categories, totalBudget, currency) {
-  const size = 200;
-  const strokeWidth = 28;
-  const radius = 70;
-  const circumference = 2 * Math.PI * radius;
+function createDonutSegment(cat, idx, accumulatedPercent, circumference, currency) {
+  const weight = Number(cat.weight) || 0;
+  if (weight <= 0) return null;
 
-  const wrapper = el("div", {
-    className: "donut-svg-wrapper",
-    role: "img",
-    "aria-label": `Donut chart showing budget allocation of ${formatCurrency(totalBudget, currency)} across ${categories.length} categories`
-  });
+  const strokeDasharray = `${(weight / 100) * circumference} ${circumference}`;
+  const strokeDashoffset = -((accumulatedPercent / 100) * circumference);
+  const color = CATEGORY_COLORS[idx % CATEGORY_COLORS.length];
 
-  const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-  svg.setAttribute("viewBox", `0 0 ${size} ${size}`);
-  svg.setAttribute("width", "180");
-  svg.setAttribute("height", "180");
-  svg.setAttribute("class", "donut-svg");
+  const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+  circle.setAttribute("cx", "100");
+  circle.setAttribute("cy", "100");
+  circle.setAttribute("r", "70");
+  circle.setAttribute("fill", "transparent");
+  circle.setAttribute("stroke", color);
+  circle.setAttribute("stroke-width", "28");
+  circle.setAttribute("stroke-dasharray", strokeDasharray);
+  circle.setAttribute("stroke-dashoffset", String(strokeDashoffset));
+  circle.setAttribute("transform", "rotate(-90 100 100)");
 
-  let accumulatedPercent = 0;
-  categories.forEach((cat, idx) => {
-    const weight = Number(cat.weight) || 0;
-    if (weight <= 0) return;
+  const titleNode = document.createElementNS("http://www.w3.org/2000/svg", "title");
+  titleNode.textContent = `${cat.name}: ${weight}% (${formatCurrency(cat.planned, currency)})`;
+  circle.appendChild(titleNode);
 
-    const strokeDasharray = `${(weight / 100) * circumference} ${circumference}`;
-    const strokeDashoffset = -((accumulatedPercent / 100) * circumference);
-    const color = CATEGORY_COLORS[idx % CATEGORY_COLORS.length];
+  return circle;
+}
 
-    const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-    circle.setAttribute("cx", "100");
-    circle.setAttribute("cy", "100");
-    circle.setAttribute("r", String(radius));
-    circle.setAttribute("fill", "transparent");
-    circle.setAttribute("stroke", color);
-    circle.setAttribute("stroke-width", String(strokeWidth));
-    circle.setAttribute("stroke-dasharray", strokeDasharray);
-    circle.setAttribute("stroke-dashoffset", String(strokeDashoffset));
-    circle.setAttribute("transform", "rotate(-90 100 100)");
-
-    const titleNode = document.createElementNS("http://www.w3.org/2000/svg", "title");
-    titleNode.textContent = `${cat.name}: ${weight}% (${formatCurrency(cat.planned, currency)})`;
-    circle.appendChild(titleNode);
-
-    svg.appendChild(circle);
-    accumulatedPercent += weight;
-  });
-
+function createDonutCenterText(totalBudget, currency) {
   const textGroup = document.createElementNS("http://www.w3.org/2000/svg", "g");
   textGroup.setAttribute("text-anchor", "middle");
 
@@ -134,7 +118,7 @@ function createDonutChartSvg(categories, totalBudget, currency) {
   centerSubtext.setAttribute("x", "100");
   centerSubtext.setAttribute("y", "93");
   centerSubtext.setAttribute("font-size", "11");
-  centerSubtext.setAttribute("fill", "#665057");
+  centerSubtext.setAttribute("fill", DONUT_SUBTEXT_COLOR);
   centerSubtext.textContent = "TOTAL";
 
   const centerAmount = document.createElementNS("http://www.w3.org/2000/svg", "text");
@@ -142,11 +126,37 @@ function createDonutChartSvg(categories, totalBudget, currency) {
   centerAmount.setAttribute("y", "112");
   centerAmount.setAttribute("font-size", "14");
   centerAmount.setAttribute("font-weight", "bold");
-  centerAmount.setAttribute("fill", "#6D2E46");
+  centerAmount.setAttribute("fill", DONUT_AMOUNT_COLOR);
   centerAmount.textContent = formatCompactCurrency(totalBudget, currency);
 
   textGroup.append(centerSubtext, centerAmount);
-  svg.appendChild(textGroup);
+  return textGroup;
+}
+
+function createDonutChartSvg(categories, totalBudget, currency) {
+  const circumference = 2 * Math.PI * 70;
+  const wrapper = el("div", {
+    className: "donut-svg-wrapper",
+    role: "img",
+    "aria-label": `Donut chart showing budget allocation of ${formatCurrency(totalBudget, currency)} across ${categories.length} categories`
+  });
+
+  const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  svg.setAttribute("viewBox", "0 0 200 200");
+  svg.setAttribute("width", "180");
+  svg.setAttribute("height", "180");
+  svg.setAttribute("class", "donut-svg");
+
+  let accumulatedPercent = 0;
+  categories.forEach((cat, idx) => {
+    const segment = createDonutSegment(cat, idx, accumulatedPercent, circumference, currency);
+    if (segment) {
+      svg.appendChild(segment);
+      accumulatedPercent += Number(cat.weight) || 0;
+    }
+  });
+
+  svg.appendChild(createDonutCenterText(totalBudget, currency));
   wrapper.appendChild(svg);
   return wrapper;
 }
@@ -164,6 +174,40 @@ function createChartLegend(categories) {
       ]);
     })
   );
+}
+
+function createCategoryTableRow(cat, idx, currency) {
+  const planned = Number(cat.planned) || 0;
+  const spent = Number(cat.spent) || 0;
+  const catRemaining = planned - spent;
+  const catOverspent = spent > planned;
+  const color = CATEGORY_COLORS[idx % CATEGORY_COLORS.length];
+
+  return el("tr", {}, [
+    el("td", { className: "cat-name-cell" }, [
+      el("span", { className: "cat-color-dot", style: { backgroundColor: color } }),
+      cat.name || cat.id
+    ]),
+    el("td", { className: "text-right font-mono" }, `${cat.weight || 0}%`),
+    el("td", { className: "text-right font-mono" }, formatCurrency(planned, currency)),
+    el("td", { className: "text-right font-mono" }, formatCurrency(spent, currency)),
+    el(
+      "td",
+      { className: `text-right font-mono ${catOverspent ? "text-danger font-bold" : ""}` },
+      formatCurrency(catRemaining, currency)
+    ),
+    el("td", {}, [
+      catOverspent
+        ? el("span", { className: "badge-status is-danger" }, [
+            icon("alertTriangle"),
+            ` Over by ${formatCompactCurrency(Math.abs(catRemaining), currency)}`
+          ])
+        : el("span", { className: "badge-status is-ok" }, [
+            icon("checkCircle"),
+            " On track"
+          ])
+    ])
+  ]);
 }
 
 function createCategoryTableCard(categories, currency) {
@@ -190,41 +234,7 @@ function createCategoryTableCard(categories, currency) {
           el(
             "tbody",
             {},
-            categories.map((cat, idx) => {
-              const planned = Number(cat.planned) || 0;
-              const spent = Number(cat.spent) || 0;
-              const catRemaining = planned - spent;
-              const catOverspent = spent > planned;
-              const color = CATEGORY_COLORS[idx % CATEGORY_COLORS.length];
-
-              return el("tr", {}, [
-                el("td", { className: "cat-name-cell" }, [
-                  el("span", { className: "cat-color-dot", style: { backgroundColor: color } }),
-                  cat.name || cat.id
-                ]),
-                el("td", { className: "text-right font-mono" }, `${cat.weight || 0}%`),
-                el("td", { className: "text-right font-mono" }, formatCurrency(planned, currency)),
-                el("td", { className: "text-right font-mono" }, formatCurrency(spent, currency)),
-                el(
-                  "td",
-                  {
-                    className: `text-right font-mono ${catOverspent ? "text-danger font-bold" : ""}`
-                  },
-                  formatCurrency(catRemaining, currency)
-                ),
-                el("td", {}, [
-                  catOverspent
-                    ? el("span", { className: "badge-status is-danger" }, [
-                        icon("alertTriangle"),
-                        ` Over by ${formatCompactCurrency(Math.abs(catRemaining), currency)}`
-                      ])
-                    : el("span", { className: "badge-status is-ok" }, [
-                        icon("checkCircle"),
-                        " On track"
-                      ])
-                ])
-              ]);
-            })
+            categories.map((cat, idx) => createCategoryTableRow(cat, idx, currency))
           )
         ]
       )

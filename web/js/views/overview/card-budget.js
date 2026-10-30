@@ -22,13 +22,13 @@ export function renderBudgetCard(event, onNavigateTab) {
     el("div", { className: "metric-subtext" }, [
       el(
         "span",
-        { style: { color: totalSpent > totalBudget ? "#C93B2B" : "#2E6B4E", fontWeight: "600" } },
+        { className: `font-semibold ${totalSpent > totalBudget ? "text-danger" : "text-success"}` },
         formatCompactCurrency(totalSpent, event.currency)
       ),
       ` spent (${budgetSpentPercent}%) • `,
       el(
         "span",
-        { style: { color: "#665057" } },
+        { style: { color: "var(--color-text-muted)" } },
         `${formatCompactCurrency(remainingBudget, event.currency)} left`
       )
     ]),

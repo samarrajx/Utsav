@@ -194,6 +194,67 @@ function createVendorCard(vendor, now, currency, event, context) {
   ]);
 }
 
+function handleAddVendorSubmit(form, onAddVendor) {
+  const nameInput = form.querySelector("#new-vendor-name");
+  const catSelect = form.querySelector("#new-vendor-category");
+  const bookByInput = form.querySelector("#new-vendor-bookby");
+  const name = nameInput.value.trim();
+  if (!name) return;
+
+  onAddVendor({
+    id: `v_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
+    category: catSelect.value,
+    name,
+    status: "to_find",
+    quote: 0,
+    bookBy: bookByInput.value || null,
+    lookFor: ["Transparent quotation", "Proven track record"],
+    askThem: ["Are you available on our event date?", "What are your deposit terms?"]
+  });
+
+  nameInput.value = "";
+  bookByInput.value = "";
+}
+
+function buildVendorFormFields() {
+  return el("div", { className: "form-row-grid" }, [
+    el("div", { className: "form-group flex-2" }, [
+      el(
+        "label",
+        { htmlFor: "new-vendor-name", className: "form-label" },
+        "Category / Service Name"
+      ),
+      el("input", {
+        id: "new-vendor-name",
+        type: "text",
+        required: true,
+        className: "form-input",
+        placeholder: "e.g., Traditional Henna Artist / Live Band"
+      })
+    ]),
+    el("div", { className: "form-group flex-1" }, [
+      el("label", { htmlFor: "new-vendor-category", className: "form-label" }, "Domain Type"),
+      el("select", { id: "new-vendor-category", className: "form-input" }, [
+        el("option", { value: "venue" }, "Venue"),
+        el("option", { value: "catering" }, "Catering"),
+        el("option", { value: "photography" }, "Photography"),
+        el("option", { value: "decor" }, "Decor & Floral"),
+        el("option", { value: "entertainment" }, "Entertainment"),
+        el("option", { value: "attire" }, "Attire & Styling"),
+        el("option", { value: "other" }, "Other Service")
+      ])
+    ]),
+    el("div", { className: "form-group flex-1" }, [
+      el(
+        "label",
+        { htmlFor: "new-vendor-bookby", className: "form-label" },
+        "Book-By Deadline"
+      ),
+      el("input", { id: "new-vendor-bookby", type: "date", className: "form-input" })
+    ])
+  ]);
+}
+
 function createAddVendorForm(onAddVendor) {
   const form = el(
     "form",
@@ -201,65 +262,12 @@ function createAddVendorForm(onAddVendor) {
       className: "card add-vendor-card",
       onSubmit: (e) => {
         e.preventDefault();
-        const nameInput = form.querySelector("#new-vendor-name");
-        const catSelect = form.querySelector("#new-vendor-category");
-        const bookByInput = form.querySelector("#new-vendor-bookby");
-        const name = nameInput.value.trim();
-        if (!name) return;
-
-        onAddVendor({
-          id: `v_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
-          category: catSelect.value,
-          name,
-          status: "to_find",
-          quote: 0,
-          bookBy: bookByInput.value || null,
-          lookFor: ["Transparent quotation", "Proven track record"],
-          askThem: ["Are you available on our event date?", "What are your deposit terms?"]
-        });
-
-        nameInput.value = "";
-        bookByInput.value = "";
+        handleAddVendorSubmit(form, onAddVendor);
       }
     },
     [
       el("h3", { className: "card-title-sm" }, [icon("plus"), "Add Custom Vendor Category"]),
-      el("div", { className: "form-row-grid" }, [
-        el("div", { className: "form-group flex-2" }, [
-          el(
-            "label",
-            { htmlFor: "new-vendor-name", className: "form-label" },
-            "Category / Service Name"
-          ),
-          el("input", {
-            id: "new-vendor-name",
-            type: "text",
-            required: true,
-            className: "form-input",
-            placeholder: "e.g., Traditional Henna Artist / Live Band"
-          })
-        ]),
-        el("div", { className: "form-group flex-1" }, [
-          el("label", { htmlFor: "new-vendor-category", className: "form-label" }, "Domain Type"),
-          el("select", { id: "new-vendor-category", className: "form-input" }, [
-            el("option", { value: "venue" }, "Venue"),
-            el("option", { value: "catering" }, "Catering"),
-            el("option", { value: "photography" }, "Photography"),
-            el("option", { value: "decor" }, "Decor & Floral"),
-            el("option", { value: "entertainment" }, "Entertainment"),
-            el("option", { value: "attire" }, "Attire & Styling"),
-            el("option", { value: "other" }, "Other Service")
-          ])
-        ]),
-        el("div", { className: "form-group flex-1" }, [
-          el(
-            "label",
-            { htmlFor: "new-vendor-bookby", className: "form-label" },
-            "Book-By Deadline"
-          ),
-          el("input", { id: "new-vendor-bookby", type: "date", className: "form-input" })
-        ])
-      ]),
+      buildVendorFormFields(),
       el("div", { className: "form-actions-right" }, [
         el("button", { type: "submit", className: "btn btn-primary" }, [icon("plus"), "Add Vendor"])
       ])
