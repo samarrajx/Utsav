@@ -5,6 +5,9 @@
  * and handles overdue milestone pull-forward with an injectable test clock.
  */
 
+export const DAYS_PER_WEEK = 7;
+export const MS_PER_DAY = 86_400_000;
+
 /**
  * Parse an ISO date or YYYY-MM-DD string into a clean UTC date at midnight
  * to avoid local timezone shifting issues.
@@ -69,7 +72,7 @@ export function addDays(baseDate, days) {
  * @returns {string} YYYY-MM-DD
  */
 export function addWeeks(baseDate, weeks) {
-  return addDays(baseDate, weeks * 7);
+  return addDays(baseDate, weeks * DAYS_PER_WEEK);
 }
 
 /**
@@ -82,7 +85,7 @@ export function daysBetween(fromDate, toDate) {
   const from = parseDate(fromDate);
   const to = parseDate(toDate);
   const msDiff = to.getTime() - from.getTime();
-  return Math.round(msDiff / (1000 * 60 * 60 * 24));
+  return Math.round(msDiff / MS_PER_DAY);
 }
 
 /**
@@ -102,6 +105,48 @@ export function formatDisplayDate(date, locale = "en-GB") {
 }
 
 /**
+ * Helper to back-schedule an individual milestone and its associated tasks.
+ *
+ * @param {Object} template
+ * @param {number} idx
+ * @param {string} eventDateStr
+ * @param {Date} nowParsed
+ * @param {string} nowStr
+ * @returns {Object}
+ */
+function scheduleSingleMilestone(template, idx, eventDateStr, nowParsed, nowStr) {
+  const weeksBefore = Number(template.weeksBefore) || 0;
+  const targetDateStr = addWeeks(eventDateStr, -weeksBefore);
+  const targetDateParsed = parseDate(targetDateStr);
+  const isPast = targetDateParsed.getTime() < nowParsed.getTime();
+
+  const dueDate = isPast ? nowStr : targetDateStr;
+  const overdue = isPast;
+  const status = isPast ? "overdue" : "pending";
+  const actionNote = isPast ? "Do now" : undefined;
+  const milestoneId = template.id || `m_${idx + 1}`;
+
+  return {
+    id: milestoneId,
+    title: template.title,
+    weeksBefore,
+    originalTargetDate: targetDateStr,
+    dueDate,
+    status,
+    overdue,
+    actionNote,
+    tasks: (template.tasks || []).map((task, tIdx) => ({
+      id: task.id || `t_${idx + 1}_${tIdx + 1}`,
+      milestoneId,
+      title: typeof task === "string" ? task : task.title,
+      due: dueDate,
+      done: Boolean(task.done),
+      overdue
+    }))
+  };
+}
+
+/**
  * Back-schedule milestones from an event date.
  * If a milestone's calculated due date is in the past relative to `nowFn()`,
  * it is flagged as overdue and pulled forward to today with "Do now".
@@ -117,37 +162,7 @@ export function scheduleMilestones(eventDate, milestoneTemplates, nowFn = () => 
   const nowParsed = parseDate(nowFn());
   const nowStr = toISODateString(nowParsed);
 
-  return milestoneTemplates.map((template, idx) => {
-    const weeksBefore = Number(template.weeksBefore) || 0;
-    // Calculate raw back-scheduled target date
-    const targetDateStr = addWeeks(eventDateStr, -weeksBefore);
-    const targetDateParsed = parseDate(targetDateStr);
-
-    const isPast = targetDateParsed.getTime() < nowParsed.getTime();
-
-    // If past, pull forward to today and flag "Do now"
-    const dueDate = isPast ? nowStr : targetDateStr;
-    const overdue = isPast;
-    const status = isPast ? "overdue" : "pending";
-    const actionNote = isPast ? "Do now" : undefined;
-
-    return {
-      id: template.id || `m_${idx + 1}`,
-      title: template.title,
-      weeksBefore,
-      originalTargetDate: targetDateStr,
-      dueDate,
-      status,
-      overdue,
-      actionNote,
-      tasks: (template.tasks || []).map((task, tIdx) => ({
-        id: task.id || `t_${idx + 1}_${tIdx + 1}`,
-        milestoneId: template.id || `m_${idx + 1}`,
-        title: typeof task === "string" ? task : task.title,
-        due: dueDate,
-        done: Boolean(task.done),
-        overdue
-      }))
-    };
-  });
+  return milestoneTemplates.map((template, idx) =>
+    scheduleSingleMilestone(template, idx, eventDateStr, nowParsed, nowStr)
+  );
 }
