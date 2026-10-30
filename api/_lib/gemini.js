@@ -165,11 +165,7 @@ function parseAndValidateJson(rawJsonString, responseSchema) {
   if (responseSchema) {
     const validation = responseSchema.safeParse(parsedObject);
     if (!validation.success) {
-      throw new HttpError(
-        "Gemini output failed schema validation",
-        502,
-        validation.error.issues || validation.error.errors
-      );
+      throw new HttpError("Gemini output failed schema validation", 502, validation.error.issues);
     }
     return validation.data;
   }

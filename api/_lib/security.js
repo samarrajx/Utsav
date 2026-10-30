@@ -294,7 +294,7 @@ function validatePayloadSchema(body, schema) {
         status: 400,
         body: {
           error: "Validation Error",
-          details: (parseResult.error.issues || parseResult.error.errors).map((e) => ({
+          details: parseResult.error.issues.map((e) => ({
             path: e.path.join("."),
             message: e.message
           }))
