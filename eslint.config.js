@@ -4,7 +4,7 @@ import globals from "globals";
 export default [
   js.configs.recommended,
   {
-    ignores: ["node_modules/**", ".vercel/**", "coverage/**"]
+    ignores: ["node_modules/**", ".vercel/**", "coverage/**", ".agents/**"]
   },
   {
     files: ["**/*.js"],
