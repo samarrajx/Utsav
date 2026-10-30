@@ -15,6 +15,7 @@ export const STORAGE_KEYS = {
 };
 
 export const CURRENT_SCHEMA_VERSION = 1;
+export const SAVE_DEBOUNCE_MS = 300;
 
 export const DEFAULT_SETTINGS = {
   language: "en", // en | hi | hinglish
@@ -221,7 +222,7 @@ export function saveEvent(event, { immediate = false } = {}) {
     if (saveDebounceTimer) clearTimeout(saveDebounceTimer);
     saveDebounceTimer = setTimeout(() => {
       flushSaveEvent();
-    }, 300);
+    }, SAVE_DEBOUNCE_MS);
   }
 
   return eventToSave;

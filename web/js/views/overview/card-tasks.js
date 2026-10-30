@@ -5,6 +5,15 @@
 import { el, icon } from "../../dom.js";
 import { formatDisplayDate, daysBetween } from "../../engine/dates.js";
 
+/**
+ * Render the overview upcoming tasks card
+ * @param {Object} event
+ * @param {Object} options
+ * @param {Function} options.onUpdate
+ * @param {Function} [options.onNavigateTab]
+ * @param {Function} [options.announce]
+ * @returns {HTMLElement}
+ */
 export function renderTasksCard(event, { onUpdate, onNavigateTab, announce }) {
   const tasks = Array.isArray(event.tasks) ? event.tasks : [];
   const now = new Date();

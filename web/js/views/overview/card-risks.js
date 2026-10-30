@@ -5,6 +5,14 @@
 import { el, icon } from "../../dom.js";
 import { fetchCritique } from "../../api.js";
 
+/**
+ * Render the overview risk audit card
+ * @param {Object} event
+ * @param {Object} options
+ * @param {Function} options.onUpdate
+ * @param {Function} [options.announce]
+ * @returns {HTMLElement}
+ */
 export function renderRisksCard(event, { onUpdate, announce }) {
   const handleReaudit = async (e) => {
     const btn = e.currentTarget;

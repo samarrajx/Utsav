@@ -47,6 +47,12 @@ function createRsvpProgressBar(attendance, total) {
   );
 }
 
+/**
+ * Render the overview guest list metric card
+ * @param {Object} event
+ * @param {Function} [onNavigateTab]
+ * @returns {HTMLElement}
+ */
 export function renderGuestsCard(event, onNavigateTab) {
   const guestList = Array.isArray(event.guests?.list) ? event.guests.list : [];
   const attendance = calculateAttendanceFromList(guestList);

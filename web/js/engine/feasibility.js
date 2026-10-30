@@ -131,6 +131,19 @@ function resolveFeasibilityInputs(params = {}) {
   return { benchmark, guestCount, userBudget, curr, date, city, countryCode };
 }
 
+/**
+ * Analyze budget and guest count against industry benchmarks and seasonal multipliers.
+ *
+ * @param {Object} [params={}]
+ * @param {string} [params.type='wedding']
+ * @param {number} [params.guests=1]
+ * @param {number} [params.budget=0]
+ * @param {string} [params.currency='INR']
+ * @param {string|Date} [params.date]
+ * @param {string} [params.city='']
+ * @param {string} [params.countryCode='IN']
+ * @returns {Object} Feasibility evaluation result
+ */
 export function checkFeasibility(params = {}) {
   const { benchmark, guestCount, userBudget, curr, date, city, countryCode } =
     resolveFeasibilityInputs(params);

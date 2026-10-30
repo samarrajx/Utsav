@@ -56,6 +56,11 @@ function createProgressRingSvg(percent) {
   return wrapper;
 }
 
+/**
+ * Render the overview progress ring card
+ * @param {Object} event
+ * @returns {HTMLElement}
+ */
 export function renderProgressRingCard(event) {
   const tasks = Array.isArray(event.tasks) ? event.tasks : [];
   const completedTasks = tasks.filter((t) => t.done).length;

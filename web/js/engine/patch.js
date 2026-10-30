@@ -8,6 +8,9 @@
 import { allocateBudget } from "./money.js";
 import { parseDate, toISODateString } from "./dates.js";
 
+export const MIN_CATEGORY_WEIGHT = 1;
+export const MAX_CATEGORY_WEIGHT = 100;
+
 export const ALLOWED_PATCH_OPS = [
   "set_category_weight",
   "set_category_planned",
@@ -37,7 +40,10 @@ export function deepClone(obj) {
 
 function handleSetCategoryWeight(nextPlan, patch) {
   const { categoryId, weight } = patch;
-  const targetWeight = Math.min(100, Math.max(1, Math.round(Number(weight) || 1)));
+  const targetWeight = Math.min(
+    MAX_CATEGORY_WEIGHT,
+    Math.max(MIN_CATEGORY_WEIGHT, Math.round(Number(weight) || 1))
+  );
 
   if (!nextPlan.budget || !Array.isArray(nextPlan.budget.categories)) {
     throw new Error("Plan has no valid budget categories");

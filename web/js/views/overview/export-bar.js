@@ -5,6 +5,12 @@
 import { el, icon } from "../../dom.js";
 import { exportEventJSON, downloadTextFile } from "../../storage.js";
 
+/**
+ * Render the overview export action bar
+ * @param {Object} event
+ * @param {Function} [announce]
+ * @returns {HTMLElement}
+ */
 export function renderExportBar(event, announce) {
   return el("div", { className: "export-actions-bar" }, [
     el("p", { className: "export-bar-label" }, "Export this plan:"),

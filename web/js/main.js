@@ -24,7 +24,11 @@ import { renderGuestsTab } from "./views/guests-tab.js";
 import { renderIdeasTab } from "./views/ideas-tab.js";
 import { abortInFlightPlan } from "./api.js";
 
-// Global screen reader announcer
+/**
+ * Global screen reader announcer using ARIA live regions
+ * @param {string} message - Content to announce
+ * @param {"polite"|"assertive"} [priority="polite"] - Live region priority
+ */
 export function announce(message, priority = "polite") {
   const liveRegion = document.getElementById(
     priority === "assertive" ? "aria-live-assertive" : "aria-live-polite"

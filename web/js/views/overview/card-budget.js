@@ -5,6 +5,12 @@
 import { el, icon } from "../../dom.js";
 import { formatCompactCurrency } from "../../engine/money.js";
 
+/**
+ * Render the overview budget metric card
+ * @param {Object} event
+ * @param {Function} [onNavigateTab]
+ * @returns {HTMLElement}
+ */
 export function renderBudgetCard(event, onNavigateTab) {
   const totalBudget = Number(event.budget?.total) || 0;
   const expenses = Array.isArray(event.expenses) ? event.expenses : [];

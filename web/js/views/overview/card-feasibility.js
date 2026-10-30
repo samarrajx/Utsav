@@ -27,6 +27,11 @@ function formatTradeOffLabel(to) {
   return label ? `${label}: ` : "";
 }
 
+/**
+ * Render the overview feasibility metric card
+ * @param {Object} event
+ * @returns {HTMLElement}
+ */
 export function renderFeasibilityCard(event) {
   return el("div", { className: "card feasibility-card" }, [
     el("div", { className: "section-header-row" }, [

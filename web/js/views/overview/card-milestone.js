@@ -5,6 +5,12 @@
 import { el, icon } from "../../dom.js";
 import { formatDisplayDate } from "../../engine/dates.js";
 
+/**
+ * Render the overview next milestone highlight card
+ * @param {Object} event
+ * @param {Function} [onNavigateTab]
+ * @returns {HTMLElement}
+ */
 export function renderMilestoneCard(event, onNavigateTab) {
   const milestones = Array.isArray(event.milestones) ? event.milestones : [];
   const nextMilestone = milestones.find((m) => m.status !== "completed") || milestones[0];
